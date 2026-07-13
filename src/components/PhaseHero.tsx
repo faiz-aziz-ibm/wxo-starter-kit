@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, MouseEvent } from 'react'
 import type { Phase } from '../data/phases'
 import { PhaseNav } from './Layout'
 
@@ -39,14 +39,21 @@ export function PhaseShell({
   )
 }
 
-/* Table of contents rail for long phase pages */
+/* Table of contents rail for long phase pages.
+   Under HashRouter a bare href="#id" clobbers the route hash (→ 404), so we
+   scroll to the target ourselves and leave the router hash untouched. */
 export function TocRail({ items }: { items: { id: string; label: string }[] }) {
+  const go = (e: MouseEvent, id: string) => {
+    e.preventDefault()
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   return (
     <nav className="toc" aria-label="On this page">
       <div className="toc-label">On this page</div>
       <ul>
         {items.map((it) => (
-          <li key={it.id}><a href={`#${it.id}`}>{it.label}</a></li>
+          <li key={it.id}><a href={`#${it.id}`} onClick={(e) => go(e, it.id)}>{it.label}</a></li>
         ))}
       </ul>
     </nav>

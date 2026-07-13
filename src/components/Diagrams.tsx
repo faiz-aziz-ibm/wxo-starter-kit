@@ -44,6 +44,44 @@ export function DecisionTree({ steps, accent = 'var(--c-design)' }: { steps: Tre
   )
 }
 
+/* ---- Visual decision flow: a spine of question nodes, terminal outcomes
+   branch off to the side, and "Continue" flows down to the next question. ---- */
+export function DecisionFlow({ steps, accent = 'var(--c-design)' }: { steps: TreeStep[]; accent?: string }) {
+  return (
+    <div className="df" style={{ ['--accent' as string]: accent }}>
+      {steps.map((s, i) => {
+        const cont = s.branches.find((b) => /^continue$/i.test(String(b.to)))
+        const terms = s.branches.filter((b) => b !== cont)
+        return (
+          <div className="df-block" key={i}>
+            <Reveal delay={i * 60} className="df-row">
+              <div className="df-node">
+                <span className="df-qmark">?</span>
+                <span className="df-qtext">{s.q}</span>
+              </div>
+              <div className="df-terms">
+                {terms.map((t, j) => (
+                  <div className={`df-term ${t.tone === 'go' ? 'go' : 'stop'}`} key={j}>
+                    <span className="df-elbow" aria-hidden />
+                    <span className="df-term-label">{t.label}</span>
+                    <span className="df-outcome">{t.to}</span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+            {cont && (
+              <div className="df-continue">
+                <span className="df-continue-label">{cont.label}</span>
+                <svg width="16" height="30" viewBox="0 0 16 30" fill="none" aria-hidden><path d="M8 0v23M2 18l6 7 6-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 /* ---- Architecture diagram: supervisor / specialists etc. ---- */
 export function ArchNode({
   title, sub, tone = 'default', wide = false,

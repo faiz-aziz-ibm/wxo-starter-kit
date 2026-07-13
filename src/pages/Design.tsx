@@ -1,8 +1,10 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable, Card, XRef } from '../components/Primitives'
-import { DecisionTree, ArchStack, ArchNode, DownArrow } from '../components/Diagrams'
+import { DecisionFlow, ArchStack, ArchNode, DownArrow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
+import { CodeTabs } from '../components/CodeTabs'
+import { Quiz } from '../components/Quiz'
 
 const phase = allPhases.find((p) => p.slug === 'design')!
 
@@ -13,6 +15,8 @@ const toc = [
   { id: 'patterns', label: 'Architecture patterns' },
   { id: 'instructions', label: 'Good instructions' },
   { id: 'desc-vs-inst', label: 'Description vs instructions' },
+  { id: 'context-vars', label: 'Context variables' },
+  { id: 'check', label: 'Knowledge check' },
 ]
 
 const canvasQs = [
@@ -61,7 +65,7 @@ export default function Design() {
       <Reveal as="section" className="reveal">
         <div id="tree" />
         <h3>The “Should this even be an agent?” decision tree</h3>
-        <DecisionTree accent="var(--c-design)" steps={[
+        <DecisionFlow accent="var(--c-design)" steps={[
           { q: 'Does the task require decisions based on unpredictable inputs?', branches: [
             { label: 'NO', to: 'Use a simple tool, API call, or RPA. Stop here.', tone: 'stop' },
             { label: 'YES', to: 'Continue', tone: 'go' },
@@ -180,6 +184,127 @@ export default function Design() {
 instructions: |         # the agent itself reads this to BEHAVE
   You are Maya, an HR assistant. Always confirm before
   submitting tickets. Never invent policies or balances.`} />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="context-vars" />
+        <h3>Context variables: what the agent already knows</h3>
+        <p className="prose">
+          Design decision: <strong>what does the agent already know about the user, before they say a word?</strong> Context
+          variables let your app pass information — a user ID, name, role, region — straight into the agent runtime, so it never
+          has to ask for things it should already have. Plan these up front; retro-fitting them is painful.
+        </p>
+        <h4>Three steps to wire them up</h4>
+        <ol className="prose" style={{ paddingLeft: 20, lineHeight: 1.9 }}>
+          <li>Set <span className="icode">context_access_enabled: true</span> in the agent definition</li>
+          <li>List each variable under <span className="icode">context_variables</span></li>
+          <li>Reference them in <span className="icode">instructions</span> with curly braces: <span className="icode">{'{user_name}'}</span></li>
+        </ol>
+        <CodeTabs tabs={[
+          {
+            label: 'agent.yaml', lang: 'yaml', title: 'askhr_agent.agent.yaml',
+            code: `spec_version: v1
+kind: native
+name: askhr_agent
+llm: groq/openai/gpt-oss-120b
+description: Answers HR-related queries for the signed-in employee
+instructions: >-
+  You have access to these context values:
+    name: {name}
+    role: {role}
+    email_id: {wxo_email_id}
+  Use them directly — do NOT ask the user for these,
+  they are always provided by the runtime.
+context_access_enabled: true       # unlock context access
+context_variables:                 # declare what you expect
+  - name
+  - role`,
+          },
+          {
+            label: 'python tool', lang: 'python', title: 'read context in a tool',
+            code: `from ibm_watsonx_orchestrate.agent_builder.tools import tool
+from ibm_watsonx_orchestrate.run.context import AgentRun
+
+@tool
+def whoami(context: AgentRun) -> str:
+    """Greets the signed-in user by reading request context.
+    Args:
+        context (AgentRun): The run context with request metadata.
+    Returns:
+        str: A short, personalised greeting.
+    """
+    req = context.request_context
+    email = req.get("wxo_email_id")   # system vars use the wxo_ prefix
+    return f"You're signed in as {email}."`,
+          },
+        ]} />
+        <DataTable
+          first="strong"
+          head={['Pass it via…', 'Best for', 'Changes often?']}
+          rows={[
+            ['JWT token', 'Stable identity — user ID, role, org, permissions (secured embed)', 'No — constant for the session'],
+            ['Instance method (pre:send)', 'Dynamic context added to the /runs payload at send time', 'Yes — can vary per message'],
+          ]}
+        />
+        <Callout kind="warning" title="The wxo_ prefix is reserved">
+          Don’t name your own variables with a <span className="icode">wxo_</span> prefix — that namespace is for system-provided
+          values like <span className="icode">wxo_email_id</span> and <span className="icode">wxo_user_name</span>. If the same name exists in
+          both the JWT and the instance method, the <strong>JWT value wins</strong>.
+        </Callout>
+        <Callout kind="note" title="Updates live for one run only">
+          A Python tool can update context (<span className="icode">req["order_id"] = "..."</span>) and later tools in the <em>same</em> run
+          see it. It is <strong>not</strong> persisted across sessions or threads — for lasting state, use an external system and retrieve by ID
+          (see <XRef to="/anti-patterns#ap-7">Invisible State</XRef>).
+        </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="check" />
+        <h3>Knowledge check</h3>
+        <Quiz accent="var(--c-design)" questions={[
+          {
+            level: 'Easy',
+            q: 'What does an agent’s description field primarily drive?',
+            options: ['How the agent talks to users', 'How a Supervisor routes tasks to it', 'Which LLM it uses', 'Its response length'],
+            answer: 1,
+            why: 'The Supervisor reads each collaborator’s description to decide where to route — it is functional code, not documentation.',
+          },
+          {
+            level: 'Easy',
+            q: 'Roughly how much of your time should go into design?',
+            options: ['0% — just build', 'About 20%', 'About 80%', 'All of it'],
+            answer: 1,
+            why: 'Spend ~20% designing and 80% building. Architecture decisions made up front save you far more time later.',
+          },
+          {
+            level: 'Medium',
+            q: 'A task has clear, deterministic steps that always run in the same order. What should you reach for?',
+            options: ['A single agent with a big prompt', 'An agentic workflow', 'More collaborators', 'A larger context window'],
+            answer: 1,
+            why: 'Deterministic sequences belong in an agentic workflow, not in agent instructions the model might skip.',
+          },
+          {
+            level: 'Medium', scenario: true,
+            q: 'You want the agent to greet the signed-in user by name without ever asking for it. What do you configure?',
+            options: ['A knowledge base of names', 'context_access_enabled + context_variables, referenced as {name}', 'A bigger LLM', 'react style'],
+            answer: 1,
+            why: 'Enable context access, declare the variable, and reference {name} in instructions — the runtime supplies it each run.',
+          },
+          {
+            level: 'Hard', scenario: true,
+            q: 'Your Supervisor routes almost every request to the HR agent, even finance questions. Most likely cause?',
+            options: ['The LLM is too small', 'The HR agent’s description is too broad and the others too vague', 'Too few collaborators', 'memory_enabled is off'],
+            answer: 1,
+            why: 'Routing depends entirely on collaborator descriptions. Tighten the over-broad one with explicit exclusions and strengthen the others with trigger phrases.',
+          },
+          {
+            level: 'Expert', scenario: true,
+            q: 'The same context variable name exists in both the JWT token and the pre:send instance method. Which value does the agent see?',
+            options: ['The instance-method value', 'The JWT value', 'Whichever is longer', 'It errors'],
+            answer: 1,
+            why: 'When a name collides, the JWT value takes precedence over the /runs (instance) value. Use different names to avoid surprises.',
+          },
+        ]} />
       </Reveal>
     </PhaseShell>
   )

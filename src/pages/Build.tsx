@@ -1,7 +1,8 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable, DoDont, Pill, Stat, XRef } from '../components/Primitives'
-import { DecisionTree, FlowRow } from '../components/Diagrams'
+import { DecisionFlow, FlowRow } from '../components/Diagrams'
+import { Quiz } from '../components/Quiz'
 import { CodeBlock } from '../components/CodeBlock'
 
 const phase = allPhases.find((p) => p.slug === 'build')!
@@ -18,6 +19,7 @@ const toc = [
   { id: 'kb', label: 'Knowledge bases' },
   { id: 'multi', label: 'Multi-agent systems' },
   { id: 'context', label: 'Context window' },
+  { id: 'check', label: 'Knowledge check' },
 ]
 
 export default function Build() {
@@ -110,7 +112,7 @@ orchestrate agents list`} />
             ['MCP Toolkit', 'An MCP server exposing many tools', 'One server, many reusable tools', 'Needs a running server'],
           ]}
         />
-        <DecisionTree accent="var(--c-build)" steps={[
+        <DecisionFlow accent="var(--c-build)" steps={[
           { q: 'Have an existing REST API with an OpenAPI spec?', branches: [{ label: 'YES', to: 'OpenAPI Tool (zero code)', tone: 'stop' }, { label: 'NO', to: 'Continue', tone: 'go' }] },
           { q: 'Is it a single deterministic function with clear I/O?', branches: [{ label: 'YES', to: 'Python Tool', tone: 'stop' }, { label: 'NO', to: 'Continue', tone: 'go' }] },
           { q: 'Multiple steps, approvals, or loops?', branches: [{ label: 'YES', to: 'Agentic Workflow', tone: 'stop' }, { label: 'NO', to: 'Continue', tone: 'go' }] },
@@ -425,6 +427,62 @@ def get_customer_orders(customer_id: str, limit: int = 5) -> str:
           If your expected conversation plus tools will consume more than <strong>80%</strong> of the model’s context window, you will
           have reliability problems. Trim your data, shorten instructions, or reduce history retention.
         </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="check" />
+        <h3>Knowledge check</h3>
+        <Quiz accent="var(--c-build)" questions={[
+          {
+            level: 'Easy',
+            q: 'How does an agent decide when to call a Python tool?',
+            options: ['By the order tools were imported', 'From the tool’s name and docstring', 'It calls every tool each turn', 'From the LLM’s training data'],
+            answer: 1,
+            why: 'The agent reads the tool name and docstring (its description) to decide relevance and what parameters to pass — so write them clearly.',
+          },
+          {
+            level: 'Easy',
+            q: 'What is the research-backed number of tools to give a single agent?',
+            options: ['1 only', '3–7', '10–15', 'As many as possible'],
+            answer: 1,
+            why: 'Beyond ~7 tools, selection accuracy drops — that is the Tool Soup anti-pattern. Curate to 3–7 focused tools.',
+          },
+          {
+            level: 'Medium', scenario: true,
+            q: 'A tool returns 2,000 rows and the agent starts forgetting its instructions mid-chat. What happened?',
+            options: ['The LLM is too small', 'Context window overflow (the Firehose)', 'Wrong agent style', 'Missing knowledge base'],
+            answer: 1,
+            why: 'A tool that dumps large data floods the context window. Return the minimum useful data — paginate and summarise.',
+          },
+          {
+            level: 'Medium',
+            q: 'You need a guaranteed order of steps with a human approval in the middle. Which building block?',
+            options: ['A bigger prompt', 'An agentic workflow with a User Activity node', 'react style', 'More collaborators'],
+            answer: 1,
+            why: 'Deterministic sequencing with human-in-the-loop is exactly what agentic workflows are for.',
+          },
+          {
+            level: 'Hard', scenario: true,
+            q: 'You imported an OpenAPI tool whose operation is named getRecordsV2 with the description “Returns a 200 response”. The agent keeps calling it at the wrong time. Best fix?',
+            options: ['Delete the tool', 'Switch to react style', 'Rename the operation and rewrite the description in plain, intent-led language', 'Add more tools so it has options'],
+            answer: 2,
+            why: 'OpenAPI specs are written for programmatic use. Give the operation an intent-led name and description the agent can reason about — otherwise you’re in Tool Soup.',
+          },
+          {
+            level: 'Hard', scenario: true,
+            q: 'A Doc Processing node’s large output auto-maps into the next node and the run fails with a token-overflow error. What’s the fix?',
+            options: ['Retry the whole flow', 'Use explicit mapping to pass only the fields you need', 'Increase max_retries', 'Switch the node to an Agent node'],
+            answer: 1,
+            why: 'Auto-mapping can inject a whole large structure into the model context. Map each needed field explicitly so only what matters flows through.',
+          },
+          {
+            level: 'Expert',
+            q: 'Which is the strongest reason to switch an agent from default to react style?',
+            options: ['To respond faster', 'To reduce token cost', 'To see a visible chain-of-thought when debugging conditional, multi-step logic', 'To use more tools'],
+            answer: 2,
+            why: 'react is slower and costs more, but its visible reason→act→observe trace makes multi-step, conditional behaviour far easier to debug.',
+          },
+        ]} />
       </Reveal>
     </PhaseShell>
   )

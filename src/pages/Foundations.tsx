@@ -3,6 +3,7 @@ import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable, DoDont, Pill } from '../components/Primitives'
 import { FlowRow, Spectrum } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
+import { Quiz } from '../components/Quiz'
 
 const phase = allPhases.find((p) => p.slug === 'foundations')!
 
@@ -15,6 +16,7 @@ const toc = [
   { id: 'two-ways', label: 'Two ways to build' },
   { id: 'interface', label: 'Navigating wxO' },
   { id: 'adk', label: 'ADK setup' },
+  { id: 'check', label: 'Knowledge check' },
 ]
 
 export default function Foundations() {
@@ -195,10 +197,10 @@ orchestrate env activate my-wxo-env
 
 # 4. Verify connection
 orchestrate agents list`} />
-        <Callout kind="warning" title="There is no orchestrate login command">
-          Authentication is always <span className="icode">orchestrate env add</span> (one-time registration) followed by
-          <span className="icode"> orchestrate env activate</span> (authenticate). SaaS sessions expire every two hours —
-          re-run <span className="icode">orchestrate env activate</span> when that happens.
+        <Callout kind="note" title="SaaS sessions expire every two hours">
+          Authentication is <span className="icode">orchestrate env add</span> (one-time registration) then
+          <span className="icode"> orchestrate env activate</span> (authenticate). On SaaS the session lasts about two hours —
+          re-run <span className="icode">orchestrate env activate</span> when it lapses.
         </Callout>
         <h4>What you get with the ADK</h4>
         <DoDont
@@ -209,12 +211,61 @@ orchestrate agents list`} />
             'Export and import for version control',
           ]}
           donts={[
-            'A separate login command — it does not exist',
             'Assuming a session lasts forever — SaaS expires every 2h',
             'Skipping env registration before activating',
             'Editing production directly — build in Draft',
+            'Committing API keys — use connections instead',
           ]}
         />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="check" />
+        <h3>Knowledge check</h3>
+        <Quiz accent="var(--c-foundations)" questions={[
+          {
+            level: 'Easy',
+            q: 'What makes an agent different from a chatbot?',
+            options: ['It uses a bigger model', 'It reasons about a goal, chooses tools, and acts', 'It only answers from documents', 'It runs one fixed script'],
+            answer: 1,
+            why: 'An agent wraps an LLM with a goal, tools and instructions — it decides how to reach the goal, rather than just talking or running a fixed path.',
+          },
+          {
+            level: 'Easy',
+            q: 'Where on the agentic spectrum should you start?',
+            options: ['As far right (most autonomous) as possible', 'Always multi-agent', 'As far left as your use case allows', 'It doesn’t matter'],
+            answer: 2,
+            why: 'Start as simple as the use case allows — you rarely need the far right, and simpler systems are more reliable and cheaper.',
+          },
+          {
+            level: 'Medium',
+            q: 'Which statement about the UI Builder and the ADK is true?',
+            options: ['They store separate, unrelated agents', 'They manage the same underlying objects', 'The UI is for production only', 'The ADK cannot version-control agents'],
+            answer: 1,
+            why: 'Both approaches manage the same agents, tools and flows. The ADK adds control and version control; the UI is faster to start.',
+          },
+          {
+            level: 'Medium', scenario: true,
+            q: 'Your team needs to answer employee questions grounded in ~200 internal PDF policies — no actions taken. Which level fits?',
+            options: ['Simple chatbot', 'RAG (grounded answers)', 'Multi-agent system', 'Autonomous workflow'],
+            answer: 1,
+            why: 'Grounded answers from your own documents is exactly RAG. No actions are taken, so you don’t need a tool-using or multi-agent system.',
+          },
+          {
+            level: 'Hard', scenario: true,
+            q: 'On SaaS, your ADK commands worked this morning but now fail to authenticate. What’s the fix?',
+            options: ['Run orchestrate login', 'Reinstall the ADK', 'Re-run orchestrate env activate', 'Generate a new service instance'],
+            answer: 2,
+            why: 'SaaS sessions expire about every two hours. Re-run orchestrate env activate to re-authenticate — there is no login command.',
+          },
+          {
+            level: 'Hard',
+            q: 'An agent “takes an action” for a user. Which capability makes that possible?',
+            options: ['A larger context window', 'A tool it can call', 'A knowledge base', 'A longer prompt'],
+            answer: 1,
+            why: 'Without tools an agent can only talk. Tools are what let it act — search a system, send an email, create a ticket.',
+          },
+        ]} />
       </Reveal>
     </PhaseShell>
   )

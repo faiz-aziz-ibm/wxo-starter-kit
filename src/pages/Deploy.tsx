@@ -3,6 +3,7 @@ import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable } from '../components/Primitives'
 import { ArchStack, ArchNode, DownArrow, FlowRow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
+import { Quiz } from '../components/Quiz'
 
 const phase = allPhases.find((p) => p.slug === 'deploy')!
 
@@ -12,6 +13,7 @@ const toc = [
   { id: 'channels', label: 'Channels' },
   { id: 'embed', label: 'Embedding webchat' },
   { id: 'cicd', label: 'CI/CD promotion' },
+  { id: 'check', label: 'Knowledge check' },
 ]
 
 export default function Deploy() {
@@ -104,6 +106,55 @@ orchestrate agents import -f hr_assistant.zip`} />
           but not Live. Run <span className="icode">orchestrate connections list</span> in both, and confirm tool imports landed in the
           correct environment.
         </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="check" />
+        <h3>Knowledge check</h3>
+        <Quiz accent="var(--c-deploy)" questions={[
+          {
+            level: 'Easy',
+            q: 'What’s the difference between Draft and Live?',
+            options: ['Draft is faster', 'Draft is your build/test workspace; Live is production for real users', 'They are identical', 'Live is for testing'],
+            answer: 1,
+            why: 'Builders work in Draft (not visible to users); Live is production, and changes require a new deploy.',
+          },
+          {
+            level: 'Easy',
+            q: 'Which channel best fits a customer-facing, mobile use case?',
+            options: ['Slack', 'WhatsApp', 'SMS only', 'Microsoft Teams'],
+            answer: 1,
+            why: 'WhatsApp suits customer-facing mobile; Slack and Teams are for internal use.',
+          },
+          {
+            level: 'Medium', scenario: true,
+            q: 'Your agent works in the chat preview but fails in Live. Most likely cause?',
+            options: ['The LLM changed', 'Environment drift — tools/connections differ between Draft and Live', 'Too many quizzes', 'The favicon'],
+            answer: 1,
+            why: 'Confirm tool imports and connections exist in the correct environment — run connections list in both Draft and Live.',
+          },
+          {
+            level: 'Medium', scenario: true,
+            q: 'You updated an agent in Draft and tested it, but real users still get the old behaviour. Why?',
+            options: ['Caching in the browser', 'Draft changes don’t reach users until you deploy to Live', 'The channel is down', 'The API key expired'],
+            answer: 1,
+            why: 'Draft is isolated from users. Changes only reach production when you deploy them to Live.',
+          },
+          {
+            level: 'Hard',
+            q: 'What is the recommended CI/CD promotion shape for a team?',
+            options: ['Edit Live directly', 'Developer → Draft → QA review → Live, via export/import', 'Live → Draft → Developer', 'Only use the UI'],
+            answer: 1,
+            why: 'Promote by exporting from one environment and importing to the next: Developer → Draft → QA → Live.',
+          },
+          {
+            level: 'Expert', scenario: true,
+            q: 'You need to embed the chat widget for the production agent on your intranet. Which command generates it?',
+            options: ['orchestrate agents deploy', 'orchestrate channels webchat embed --env live', 'orchestrate connections add', 'orchestrate chat ask'],
+            answer: 1,
+            why: 'channels webchat embed --env live produces the loader script and config for the Live agent to drop into your page.',
+          },
+        ]} />
       </Reveal>
     </PhaseShell>
   )

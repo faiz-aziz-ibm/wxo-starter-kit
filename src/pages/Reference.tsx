@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, DataTable, Card } from '../components/Primitives'
-import { DecisionTree } from '../components/Diagrams'
+import { DecisionFlow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { IconArrowUpRight } from '../icons/Icons'
 
@@ -142,7 +142,7 @@ def my_tool(input_param: str, optional: int = 0) -> str:
       <Reveal as="section" className="reveal">
         <div id="flowchart" />
         <h3>Cheat Sheet 4 · Architecture decision flowchart</h3>
-        <DecisionTree accent="var(--teal)" steps={[
+        <DecisionFlow accent="var(--teal)" steps={[
           { q: 'Is the task deterministic (same input = same output)?', branches: [{ label: 'YES', to: 'Tool or Agentic Workflow, not an Agent', tone: 'stop' }, { label: 'NO', to: 'Continue', tone: 'go' }] },
           { q: 'Does it need to decide between different paths?', branches: [{ label: 'YES', to: 'Agent', tone: 'go' }, { label: 'NO', to: 'Tool or Workflow', tone: 'stop' }] },
           { q: 'How many distinct task types does it handle?', branches: [{ label: '1–4', to: 'Single Agent + Tools', tone: 'go' }, { label: '5+', to: 'Supervisor + Specialists', tone: 'stop' }] },
