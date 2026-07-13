@@ -1,0 +1,73 @@
+/* ============================================================
+   Roadmap — "Become a wxO Pro"
+   ============================================================ */
+
+.rm-intro { font-size: 1.16rem; color: var(--text-1); line-height: 1.65; max-width: 720px; }
+
+/* Level tiers legend */
+.rm-tiers { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 8px; }
+.rm-tier { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-soft); background: var(--panel); font-size: 0.84rem; }
+.rm-tier .d { width: 9px; height: 9px; border-radius: 50%; }
+
+/* Vertical timeline */
+.rm-track { position: relative; margin: 20px 0 8px; padding-left: 0; }
+.rm-level { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 18px; padding-bottom: 20px; }
+.rm-rail { position: relative; display: flex; flex-direction: column; align-items: center; }
+.rm-node {
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0; display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: 600; font-size: 1.05rem; color: var(--bg);
+  background: var(--accent, var(--green)); z-index: 2;
+  box-shadow: 0 6px 20px -6px color-mix(in srgb, var(--accent, var(--green)) 70%, transparent);
+}
+.rm-line { width: 2px; flex: 1; background: linear-gradient(var(--accent, var(--green)), color-mix(in srgb, var(--accent, var(--green)) 20%, transparent)); margin-top: 4px; min-height: 20px; }
+.rm-level:last-child .rm-line { display: none; }
+.rm-card { border: 1px solid var(--line-soft); border-radius: var(--radius); background: var(--panel); padding: 22px 24px; transition: border-color 0.3s var(--ease), transform 0.3s var(--ease); }
+.rm-card:hover { border-color: color-mix(in srgb, var(--accent, var(--green)) 40%, transparent); transform: translateY(-2px); }
+.rm-card-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.rm-tierbadge { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 6px; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.rm-card h3 { font-size: 1.22rem; margin: 0; }
+.rm-card .rm-time { margin-left: auto; font-size: 0.8rem; color: var(--text-3); font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 6px; }
+.rm-card p { color: var(--text-1); margin: 8px 0 0; font-size: 0.96rem; line-height: 1.62; }
+.rm-learn { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.rm-learn-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.rm-chip { font-size: 0.82rem; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-1); }
+.rm-links { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+
+@media (max-width: 560px) {
+  .rm-level { grid-template-columns: 44px 1fr; gap: 12px; }
+  .rm-node { width: 40px; height: 40px; font-size: 0.9rem; }
+  .rm-card { padding: 18px; }
+  .rm-card .rm-time { margin-left: 0; width: 100%; }
+}
+
+/* Example growth diagram */
+.rm-grow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; margin: 24px 0; }
+.rm-grow-col { text-align: center; }
+.rm-grow-cap { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px; }
+.rm-grow-arrow { color: var(--green); display: grid; place-items: center; }
+@media (max-width: 680px) { .rm-grow { grid-template-columns: 1fr; } .rm-grow-arrow { transform: rotate(90deg); } }
+
+/* Use-case cards */
+.rm-usecase { padding: 20px; }
+.rm-usecase-icon { width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; margin-bottom: 14px; color: var(--teal); background: color-mix(in srgb, var(--teal) 14%, transparent); }
+.rm-usecase h4 { margin: 0 0 6px; font-size: 1.04rem; }
+.rm-usecase p { margin: 0; color: var(--text-2); font-size: 0.9rem; line-height: 1.55; }
+
+/* Download / toolkit callout */
+.rm-download { position: relative; overflow: hidden; border: 1px solid color-mix(in srgb, var(--green) 30%, var(--line)); border-radius: var(--radius-lg); padding: 34px; background: linear-gradient(150deg, rgba(66,190,101,0.1), rgba(8,189,186,0.05)); }
+.rm-download-grid { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; }
+.rm-download h3 { font-size: 1.5rem; margin: 0 0 8px; }
+.rm-download p { color: var(--text-1); margin: 0 0 16px; max-width: 560px; }
+.rm-download-items { display: flex; gap: 8px; flex-wrap: wrap; }
+.rm-bob { width: 118px; height: 118px; display: block; margin: 0 auto 16px; filter: drop-shadow(0 10px 24px rgba(15,98,254,0.35)); animation: bobFloat 5s ease-in-out infinite; }
+@keyframes bobFloat { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+@media (max-width: 720px) { .rm-bob { width: 96px; height: 96px; } }
+@media (max-width: 720px) { .rm-download { padding: 26px; } .rm-download-grid { grid-template-columns: 1fr; gap: 20px; } }
+
+/* Curator card */
+.curator { display: flex; align-items: center; gap: 18px; padding: 22px 26px; border: 1px solid var(--line-soft); border-radius: var(--radius); background: var(--panel); }
+.curator-avatar { flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 600; font-size: 1.15rem; color: #fff; background: linear-gradient(150deg, var(--blue), var(--purple)); }
+.curator-name { font-weight: 600; font-size: 1.05rem; }
+.curator-role { color: var(--text-2); font-size: 0.9rem; margin-top: 2px; }
+.curator-mail { color: var(--blue-bright); font-size: 0.9rem; font-family: var(--font-mono); margin-top: 4px; display: inline-block; }
+.curator-mail:hover { text-decoration: underline; }

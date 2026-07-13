@@ -1,0 +1,137 @@
+import { Link } from 'react-router-dom'
+import '../styles/home.css'
+import { phases, extras, roadmap } from '../data/phases'
+import { LifecycleRing } from '../components/LifecycleRing'
+import { Reveal, H2, Card } from '../components/Primitives'
+import {
+  IconArrow, IconSpark, IconUsers, IconBuild, IconTarget,
+  IconCheck, IconBook, IconArrowUpRight,
+} from '../icons/Icons'
+
+const audiences = [
+  { icon: IconUsers, color: 'var(--cyan)', title: 'Non-technical stakeholders', body: 'Analysts and business owners who need to understand what agents can do, where they fit, and how to scope a use case — no code required.' },
+  { icon: IconBuild, color: 'var(--purple)', title: 'New platform builders', body: 'People building their first agent in the UI or ADK. Clear, copy-ready steps and the "why" behind every decision.' },
+  { icon: IconTarget, color: 'var(--amber)', title: 'Experienced developers', body: 'Engineers shipping multi-agent systems, workflows and CI/CD who want best practices, trade-offs and debugging playbooks.' },
+]
+
+export default function Home() {
+  return (
+    <>
+      {/* HERO */}
+      <section className="hero">
+        <div className="hero-orb o1" /><div className="hero-orb o2" /><div className="hero-orb o3" />
+        <div className="container hero-inner">
+          <Reveal>
+            <div className="hero-badge"><span className="hb-dot" /> IBM watsonx Orchestrate · Knowledge Transfer Series</div>
+          </Reveal>
+          <Reveal delay={80}>
+            <h1 className="hero-title">Build agentic AI, <span className="gradient-text">the right way</span>.</h1>
+          </Reveal>
+          <Reveal delay={160}>
+            <p className="hero-sub">
+              A friendly, premium starter kit for everyone at IBM — taking you from zero to production
+              across the full watsonx Orchestrate lifecycle: <strong>Design, Build, Test, Deploy, Monitor.</strong>
+            </p>
+          </Reveal>
+          <Reveal delay={240}>
+            <div className="hero-cta">
+              <Link to="/roadmap" className="btn btn-primary">Follow the roadmap <IconArrow width={16} height={16} /></Link>
+              <Link to="/foundations" className="btn btn-ghost">Start from zero <IconSpark width={16} height={16} /></Link>
+            </div>
+          </Reveal>
+          <Reveal delay={320}>
+            <div className="hero-meta">
+              <span className="hero-meta-item"><IconCheck width={16} height={16} /> Non-technical to technical</span>
+              <span className="hero-meta-item"><IconBook width={16} height={16} /> 9 guided chapters</span>
+              <span className="hero-meta-item"><IconSpark width={16} height={16} /> Copy-ready examples</span>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* LIFECYCLE RING */}
+      <section className="section lifecycle">
+        <div className="container">
+          <Reveal className="lifecycle-head">
+            <div className="eyebrow" style={{ justifyContent: 'center' }}><span className="dot" /> The mental model</div>
+            <h2 className="h2" style={{ marginTop: 12 }}>One lifecycle, five phases</h2>
+            <p className="lead" style={{ marginTop: 12 }}>
+              Every agent — from a simple Q&amp;A bot to a multi-agent system — travels the same loop.
+              Master it once, apply it everywhere. Hover a stage to explore.
+            </p>
+          </Reveal>
+
+          <LifecycleRing />
+
+          <div className="ring-legend">
+            {phases.filter((p) => p.lifecycle).map((p) => (
+              <Link key={p.slug} to={p.path} className="ring-legend-item">
+                <span className="ring-legend-dot" style={{ background: p.color }} />
+                <span className="ring-legend-num">{p.num}</span>
+                <span className="ring-legend-name">{p.title}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AUDIENCE */}
+      <section className="section">
+        <div className="container">
+          <Reveal><H2 eyebrow="Who this is for">Written for the whole team</H2></Reveal>
+          <div className="audience-grid">
+            {audiences.map((a, i) => (
+              <Reveal key={i} delay={i * 100}>
+                <Card className="aud-card" hover accent={a.color}>
+                  <div className="aud-icon" style={{ background: `color-mix(in srgb, ${a.color} 14%, transparent)`, color: a.color }}>
+                    <a.icon width={24} height={24} />
+                  </div>
+                  <h3>{a.title}</h3>
+                  <p>{a.body}</p>
+                </Card>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PHASE INDEX */}
+      <section className="section">
+        <div className="container">
+          <Reveal><H2 eyebrow="The guide">Everything, in order</H2></Reveal>
+          <div className="phase-grid">
+            {[roadmap, ...phases, ...extras].map((p, i) => (
+              <Reveal key={p.slug} delay={(i % 2) * 80}>
+                <Link to={p.path} className="phase-card card card-hover" style={{ ['--accent' as string]: p.color }}>
+                  <span className="phase-card-icon"><p.icon width={24} height={24} /></span>
+                  <span style={{ minWidth: 0 }}>
+                    <span className="phase-card-num">{p.kicker.toUpperCase()} · {p.num}</span>
+                    <h3>{p.title} <span className="arr"><IconArrow width={18} height={18} /></span></h3>
+                    <p>{p.blurb}</p>
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* BIG CTA */}
+      <section className="section">
+        <div className="container narrow">
+          <Reveal>
+            <div className="bigcta">
+              <div className="hero-orb o2" style={{ opacity: 0.25 }} />
+              <h2>Ready to build your first agent?</h2>
+              <p>Follow the staged roadmap from your first Python tool to a full multi-agent system — one new concept at a time.</p>
+              <div className="hero-cta" style={{ justifyContent: 'center' }}>
+                <Link to="/roadmap" className="btn btn-primary">Become a wxO Pro <IconArrow width={16} height={16} /></Link>
+                <a href="https://developer.watson-orchestrate.ibm.com" target="_blank" rel="noreferrer" className="btn btn-ghost">Official docs <IconArrowUpRight width={15} height={15} /></a>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </>
+  )
+}

@@ -1,0 +1,186 @@
+import { allPhases } from '../data/phases'
+import { PhaseShell } from '../components/PhaseHero'
+import { Reveal, Callout, DataTable, Card, XRef } from '../components/Primitives'
+import { DecisionTree, ArchStack, ArchNode, DownArrow } from '../components/Diagrams'
+import { CodeBlock } from '../components/CodeBlock'
+
+const phase = allPhases.find((p) => p.slug === 'design')!
+
+const toc = [
+  { id: 'golden', label: 'The golden rule' },
+  { id: 'canvas', label: 'Use case canvas' },
+  { id: 'tree', label: 'Should this be an agent?' },
+  { id: 'patterns', label: 'Architecture patterns' },
+  { id: 'instructions', label: 'Good instructions' },
+  { id: 'desc-vs-inst', label: 'Description vs instructions' },
+]
+
+const canvasQs = [
+  'What is the business goal?',
+  'Who is the user?',
+  'What trigger starts the process?',
+  'What systems or data does it need?',
+  'What decisions does it need to make?',
+  'What actions does it take?',
+  'What does “success” look like?',
+  'What could go wrong?',
+  'Does it need human approval? When?',
+  'What is NOT in scope?',
+]
+
+export default function Design() {
+  return (
+    <PhaseShell phase={phase} toc={toc} tagline="Architecture & planning. Spend 20% of your time here — it saves the other 80%.">
+      <Reveal as="section" className="reveal">
+        <div id="golden" />
+        <Callout kind="key" title="The golden rule before you build anything">
+          Architecture decisions made here will haunt you — or save you — for the entire project.
+          Spend <strong>20% of your time designing and 80% building</strong>, not the other way around.
+        </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="canvas" />
+        <h3>Start here: the Use Case Design Canvas</h3>
+        <p className="prose">
+          Fill out this one-page canvas <strong>before writing a single line of code</strong>. If you cannot answer these questions,
+          you are not ready to build yet.
+        </p>
+        <div className="grid-2" style={{ margin: '18px 0' }}>
+          {canvasQs.map((q, i) => (
+            <Card key={i} className="" accent="var(--c-design)" hover>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <span className="mono" style={{ color: 'var(--c-design)', fontSize: '0.82rem' }}>{String(i + 1).padStart(2, '0')}</span>
+                <strong style={{ color: '#fff', fontWeight: 500 }}>{q}</strong>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="tree" />
+        <h3>The “Should this even be an agent?” decision tree</h3>
+        <DecisionTree accent="var(--c-design)" steps={[
+          { q: 'Does the task require decisions based on unpredictable inputs?', branches: [
+            { label: 'NO', to: 'Use a simple tool, API call, or RPA. Stop here.', tone: 'stop' },
+            { label: 'YES', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Does it involve multiple steps that depend on each other’s outputs?', branches: [
+            { label: 'NO', to: 'One agent with one tool is probably enough.', tone: 'stop' },
+            { label: 'YES', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Are any steps deterministic — always in the same order?', branches: [
+            { label: 'YES', to: 'Use an Agentic Workflow for those steps, not a pure agent.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Does it involve multiple different domains (HR + Finance + IT)?', branches: [
+            { label: 'YES', to: 'Multi-Agent System (Supervisor + Specialists).', tone: 'go' },
+            { label: 'NO', to: 'Single Agent with multiple tools.', tone: 'stop' },
+          ] },
+        ]} />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="patterns" />
+        <h3>Agent architecture patterns</h3>
+
+        <h4>Pattern 1 · Single Agent + Tools <span className="muted">(start here)</span></h4>
+        <p className="prose">Use when: one domain, 2–7 tools, moderate complexity.</p>
+        <ArchStack label="Single agent">
+          <ArchNode title="User" tone="user" />
+          <DownArrow />
+          <ArchNode title="Single Agent" sub="Granite / GPT · searches DB, sends email, searches KB" tone="primary" wide />
+          <DownArrow />
+          <ArchNode title="User Response" tone="user" />
+        </ArchStack>
+        <p className="prose muted">Example: an IT helpdesk agent that searches the knowledge base, creates tickets, and sends notifications.</p>
+
+        <h4 style={{ marginTop: 34 }}>Pattern 2 · Supervisor + Specialists <span className="muted">(scale up)</span></h4>
+        <p className="prose">Use when: multiple domains, you need routing logic, two or more distinct task types.</p>
+        <ArchStack>
+          <ArchNode title="Supervisor Agent" sub="Routes based on intent" tone="primary" wide />
+          <DownArrow />
+          <div className="arch-row">
+            <ArchNode title="HR Agent" sub="leave, onboarding" />
+            <ArchNode title="Finance Agent" sub="expenses, reimbursement" />
+            <ArchNode title="IT Agent" sub="access, incidents" />
+          </div>
+        </ArchStack>
+        <Callout kind="note" title="Routing is driven by descriptions">
+          The Supervisor’s routing depends entirely on each specialist’s <span className="icode">description</span> field.
+          Write it as if describing the specialist to another AI that must decide whether to send a task there.
+        </Callout>
+
+        <h4 style={{ marginTop: 34 }}>Pattern 3 · Agent + Agentic Workflow <span className="muted">(hybrid)</span></h4>
+        <p className="prose">Use when: a mix of open-ended reasoning and deterministic steps, with human approvals needed.</p>
+        <ArchStack>
+          <ArchNode title="Agent" sub="Collects information, reasons about the request" tone="primary" wide />
+          <DownArrow />
+          <ArchNode title="Agentic Workflow" sub="Validate → Get Approval (human) → Execute" wide />
+        </ArchStack>
+        <p className="prose muted">Example: expense approval — the agent collects & validates, the workflow routes to a manager, then executes payment.</p>
+
+        <h4 style={{ marginTop: 34 }}>Pattern 4 · External Agent Integration</h4>
+        <p className="prose">Use when: you already have an agent on another platform (Salesforce AgentForce, watsonx.ai, LangGraph, BeeAI).</p>
+        <ArchStack>
+          <ArchNode title="wxO Native Agent" tone="primary" wide />
+          <DownArrow label="via A2A or external_chat protocol" />
+          <ArchNode title="External Agent" sub="AgentForce / watsonx.ai / custom LangGraph or BeeAI" wide />
+        </ArchStack>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="instructions" />
+        <h3>Designing good agent instructions</h3>
+        <p className="prose">
+          One of the most underrated skills in agentic AI. Good instructions have a clear anatomy — and stay short.
+          Cramming every case into one enormous prompt is the <XRef to="/anti-patterns#ap-1">Mega-Prompt</XRef> anti-pattern;
+          aim for around 20 lines per agent.
+        </p>
+        <ol className="prose" style={{ paddingLeft: 20, lineHeight: 2 }}>
+          <li><strong>WHO</strong> the agent is (persona, role, tone)</li>
+          <li><strong>WHAT</strong> it can do (tools available and when to use them)</li>
+          <li><strong>WHAT it cannot do</strong> (hard limits, escalation rules)</li>
+          <li><strong>HOW to handle edge cases</strong> (ambiguity, errors, unknowns)</li>
+          <li><strong>OUTPUT format</strong> preferences (markdown, tables, brevity)</li>
+        </ol>
+        <div className="grid-2" style={{ margin: '20px 0' }}>
+          <Card accent="var(--red)"><div className="callout-label" style={{ color: 'var(--red)' }}>Bad instructions</div>
+            <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.92rem' }}>“You are a helpful HR assistant. Help employees with their questions.”</p>
+          </Card>
+          <Card accent="var(--green)"><div className="callout-label" style={{ color: 'var(--green)' }}>Good instructions</div>
+            <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.9rem', lineHeight: 1.5 }}>
+              “You are Maya, an HR assistant for Aviva. Help with leave balances (use <span className="icode">get_leave_balance</span>),
+              policy questions (search the HR KB first), onboarding (use <span className="icode">create_onboarding_ticket</span>).
+              Always confirm before submitting a ticket. Never make up policies. Keep responses to 3 sentences unless asked for detail.”
+            </p>
+          </Card>
+        </div>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="desc-vs-inst" />
+        <h3>Description vs. instructions are NOT the same</h3>
+        <DataTable
+          first="strong"
+          head={['Field', 'Purpose', 'Who reads it']}
+          rows={[
+            ['description', 'Summary of what this agent does', 'Other agents (for routing)'],
+            ['instructions', 'Behavioural rules for the agent', 'The LLM (the agent itself)'],
+          ]}
+        />
+        <Callout kind="critical" title="Descriptions drive routing">
+          In a Supervisor-Specialist pattern, the Supervisor routes based on each specialist’s <span className="icode">description</span>.
+          Write it as if you are describing the specialist to another AI that must decide whether to send a task there.
+        </Callout>
+        <CodeBlock lang="yaml" title="my_agent.agent.yaml — the two fields" code={`description: |          # other agents read this to ROUTE
+  Handles employee HR queries: leave balances,
+  policy questions, and onboarding ticket creation.
+instructions: |         # the agent itself reads this to BEHAVE
+  You are Maya, an HR assistant. Always confirm before
+  submitting tickets. Never invent policies or balances.`} />
+      </Reveal>
+    </PhaseShell>
+  )
+}
