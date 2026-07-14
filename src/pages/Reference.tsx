@@ -4,6 +4,7 @@ import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, DataTable, Card } from '../components/Primitives'
 import { DecisionFlow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
+import { Flashcards } from '../components/Flashcards'
 import { IconArrowUpRight } from '../icons/Icons'
 
 const phase = allPhases.find((p) => p.slug === 'reference')!
@@ -15,6 +16,7 @@ const toc = [
   { id: 'flowchart', label: 'Architecture decision' },
   { id: 'checklist', label: 'Pre-deploy checklist' },
   { id: 'glossary', label: 'Glossary' },
+  { id: 'flashcards', label: 'Flashcards' },
   { id: 'links', label: 'Key links' },
 ]
 
@@ -189,6 +191,16 @@ def my_tool(input_param: str, optional: int = 0) -> str:
           head={['Term', 'Definition']}
           rows={filtered.map(([t, d]) => [t, d])}
         />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="flashcards" />
+        <h3>Test yourself: glossary flashcards</h3>
+        <p className="prose">
+          See the term, recall the meaning, then flip to check. Mark each <strong>Knew it</strong> or <strong>Review</strong> —
+          at the end you can practise just the ones you flagged. The deck reshuffles every time.
+        </p>
+        <Flashcards cards={glossary} accent="var(--teal)" />
       </Reveal>
 
       <Reveal as="section" className="reveal">

@@ -11,6 +11,7 @@ import Monitor from './pages/Monitor'
 import Mcp from './pages/Mcp'
 import AntiPatterns from './pages/AntiPatterns'
 import Reference from './pages/Reference'
+import Capstone from './pages/Capstone'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/mcp" element={<Mcp />} />
         <Route path="/anti-patterns" element={<AntiPatterns />} />
         <Route path="/reference" element={<Reference />} />
+        <Route path="/capstone" element={<Capstone />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Page>

@@ -3,6 +3,7 @@ import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable, DoDont, Pill, Stat, XRef } from '../components/Primitives'
 import { DecisionFlow, FlowRow } from '../components/Diagrams'
 import { Quiz } from '../components/Quiz'
+import { buildQuiz } from '../data/quizzes'
 import { CodeBlock } from '../components/CodeBlock'
 
 const phase = allPhases.find((p) => p.slug === 'build')!
@@ -13,6 +14,7 @@ const toc = [
   { id: 'tools', label: 'Building tools' },
   { id: 'naming', label: 'Naming & docstrings' },
   { id: 'connections', label: 'Connections' },
+  { id: 'auth', label: 'Auth & OAuth flows' },
   { id: 'workflows', label: 'Agentic workflows' },
   { id: 'nodes', label: 'The node catalogue' },
   { id: 'mapping', label: 'Data flow & mapping' },
@@ -186,6 +188,58 @@ orchestrate connections set-credentials -a my_salesforce_conn \\
           <span className="icode">add</span> registers it, <span className="icode">configure</span> sets the auth type,
           <span className="icode"> set-credentials</span> provides the secret. Miss any step and your tool will not authenticate.
           Supported auth: basic, bearer, api_key, key_value, and OAuth 2.0 flows.
+        </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="auth" />
+        <h3>Authentication &amp; OAuth flows: which to pick</h3>
+        <p className="prose">
+          Simple keys (<span className="icode">api_key</span>, <span className="icode">bearer</span>, <span className="icode">basic</span>)
+          are fine for a fixed service token. Reach for <strong>OAuth 2.0</strong> when the target system issues short-lived tokens or the
+          access must be tied to a <em>specific user</em>. wxO supports these flows — pick by <strong>who the call acts as</strong>:
+        </p>
+        <DataTable
+          first="strong"
+          head={['Flow (kind)', 'Acts as', 'Reach for it when…']}
+          rows={[
+            ['oauth_auth_client_credentials_flow', 'The application (machine-to-machine)', 'A backend service integration with no end-user context — one shared identity.'],
+            ['oauth_auth_code_flow', 'A delegated user (standard web OAuth)', 'You need a user to sign in and consent once, then call on their behalf.'],
+            ['oauth_auth_on_behalf_of_flow', 'The signed-in user, via your IdP', 'An IdP must exchange the user’s token for downstream access (embedded web chat).'],
+            ['oauth_auth_password_flow', 'A user, by username/password', 'A trusted legacy system with no better option (avoid if you can).'],
+            ['api_key / bearer / basic', 'A fixed service identity', 'A stable, long-lived credential for a shared integration.'],
+          ]}
+        />
+        <h4>Team vs. member: who owns the credentials</h4>
+        <DataTable
+          first="strong"
+          head={['Scope', 'Who sets it', 'Use for']}
+          rows={[
+            ['team', 'The builder sets one credential, shared by everyone', 'Shared service accounts — e.g. a read-only reporting API.'],
+            ['member', 'Each user provides their own (prompted in chat)', 'Per-user access where actions must be attributed to that person.'],
+          ]}
+        />
+        <CodeBlock lang="yaml" title="A client-credentials connection (my_app.yaml)" code={`spec_version: v1
+kind: connection
+app_id: my_reporting_api
+environments:
+  draft:
+    kind: oauth_auth_client_credentials_flow
+    type: team                       # one shared credential
+    server_url: https://api.example.com/
+  live:
+    kind: oauth_auth_client_credentials_flow
+    type: team
+    server_url: https://api.example.com/`} />
+        <Callout kind="critical" title="Secrets hygiene — never hard-code credentials">
+          Keep tokens and client secrets <strong>out of your tool code and YAML</strong>. Register them only through
+          <span className="icode"> orchestrate connections set-credentials</span>, which stores them in the wxO connection vault.
+          Configure connections <strong>per environment</strong> (Draft and Live are separate), prefer <span className="icode">member</span> scope
+          when actions must be attributed to a real user, and rotate secrets on a schedule — the connection is the only place a secret should live.
+        </Callout>
+        <Callout kind="tip" title="A collision to know about">
+          For <span className="icode">oauth_auth_on_behalf_of_flow</span>, support is currently limited to agents accessed through
+          <strong> embedded web chat</strong>, and the connection is <span className="icode">member</span>-scoped by nature (it acts as each signed-in user).
         </Callout>
       </Reveal>
 
@@ -432,57 +486,7 @@ def get_customer_orders(customer_id: str, limit: int = 5) -> str:
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-build)" questions={[
-          {
-            level: 'Easy',
-            q: 'How does an agent decide when to call a Python tool?',
-            options: ['By the order tools were imported', 'From the tool’s name and docstring', 'It calls every tool each turn', 'From the LLM’s training data'],
-            answer: 1,
-            why: 'The agent reads the tool name and docstring (its description) to decide relevance and what parameters to pass — so write them clearly.',
-          },
-          {
-            level: 'Easy',
-            q: 'What is the research-backed number of tools to give a single agent?',
-            options: ['1 only', '3–7', '10–15', 'As many as possible'],
-            answer: 1,
-            why: 'Beyond ~7 tools, selection accuracy drops — that is the Tool Soup anti-pattern. Curate to 3–7 focused tools.',
-          },
-          {
-            level: 'Medium', scenario: true,
-            q: 'A tool returns 2,000 rows and the agent starts forgetting its instructions mid-chat. What happened?',
-            options: ['The LLM is too small', 'Context window overflow (the Firehose)', 'Wrong agent style', 'Missing knowledge base'],
-            answer: 1,
-            why: 'A tool that dumps large data floods the context window. Return the minimum useful data — paginate and summarise.',
-          },
-          {
-            level: 'Medium',
-            q: 'You need a guaranteed order of steps with a human approval in the middle. Which building block?',
-            options: ['A bigger prompt', 'An agentic workflow with a User Activity node', 'react style', 'More collaborators'],
-            answer: 1,
-            why: 'Deterministic sequencing with human-in-the-loop is exactly what agentic workflows are for.',
-          },
-          {
-            level: 'Hard', scenario: true,
-            q: 'You imported an OpenAPI tool whose operation is named getRecordsV2 with the description “Returns a 200 response”. The agent keeps calling it at the wrong time. Best fix?',
-            options: ['Delete the tool', 'Switch to react style', 'Rename the operation and rewrite the description in plain, intent-led language', 'Add more tools so it has options'],
-            answer: 2,
-            why: 'OpenAPI specs are written for programmatic use. Give the operation an intent-led name and description the agent can reason about — otherwise you’re in Tool Soup.',
-          },
-          {
-            level: 'Hard', scenario: true,
-            q: 'A Doc Processing node’s large output auto-maps into the next node and the run fails with a token-overflow error. What’s the fix?',
-            options: ['Retry the whole flow', 'Use explicit mapping to pass only the fields you need', 'Increase max_retries', 'Switch the node to an Agent node'],
-            answer: 1,
-            why: 'Auto-mapping can inject a whole large structure into the model context. Map each needed field explicitly so only what matters flows through.',
-          },
-          {
-            level: 'Expert',
-            q: 'Which is the strongest reason to switch an agent from default to react style?',
-            options: ['To respond faster', 'To reduce token cost', 'To see a visible chain-of-thought when debugging conditional, multi-step logic', 'To use more tools'],
-            answer: 2,
-            why: 'react is slower and costs more, but its visible reason→act→observe trace makes multi-step, conditional behaviour far easier to debug.',
-          },
-        ]} />
+        <Quiz accent="var(--c-build)" questions={buildQuiz} />
       </Reveal>
     </PhaseShell>
   )

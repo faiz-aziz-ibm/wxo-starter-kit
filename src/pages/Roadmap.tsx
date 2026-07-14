@@ -195,6 +195,10 @@ export default function Roadmap() {
             </Reveal>
           ))}
         </div>
+        <Callout kind="key" title="Think you’ve got it? Prove it.">
+          When the path feels solid, sit <Link to="/capstone" className="xref">the Capstone exam<IconArrowUpRight width={13} height={13} /></Link> —
+          12 scenario questions drawn from the toughest material in every section. Score 70%+ to earn <strong>wxO Ready</strong>.
+        </Callout>
       </Reveal>
 
       <Reveal as="section" className="reveal">

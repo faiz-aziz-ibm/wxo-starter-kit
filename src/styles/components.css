@@ -430,7 +430,13 @@
   transition: transform 0.2s var(--ease), filter 0.2s; margin-left: auto;
 }
 .quiz-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-.quiz-result .quiz-btn { margin-left: 0; margin-top: 6px; }
+.quiz-btn.ghost { background: transparent; color: var(--text-1); border: 1px solid var(--line); margin-left: 0; }
+.quiz-result .quiz-btn { margin-top: 6px; }
+.quiz-cert { border-width: 1px; }
+.quiz-cert.pass { border-color: color-mix(in srgb, var(--green) 40%, var(--line)); background: linear-gradient(180deg, rgba(66,190,101,0.08), var(--panel)); }
+.cert-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; margin-bottom: 10px; }
+.cert-badge.pass { color: #04140a; background: var(--green); }
+.cert-badge.fail { color: var(--amber); background: rgba(241,194,27,0.14); border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent); }
 .quiz-result { display: flex; align-items: center; gap: 24px; }
 .quiz-score-ring {
   flex-shrink: 0; width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center;
@@ -443,6 +449,59 @@
 .quiz-result-title { font-size: 1.15rem; font-weight: 600; }
 .quiz-result-msg { color: var(--text-2); margin: 6px 0 4px; font-size: 0.94rem; }
 @media (max-width: 560px) { .quiz-result { flex-direction: column; text-align: center; gap: 16px; } }
+
+/* ---------- Capstone "covers" chips ---------- */
+.cap-covers { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 20px 0 4px; }
+.cap-covers-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.cap-chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-1); font-size: 0.85rem; transition: all 0.2s var(--ease); }
+.cap-chip:hover { border-color: color-mix(in srgb, var(--purple) 45%, transparent); color: #fff; transform: translateY(-1px); }
+.cap-chip svg { opacity: 0.7; }
+
+/* ---------- Flashcards ---------- */
+.fc { margin: 26px 0; --accent: var(--teal); }
+.fc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.fc-badge { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.fc-progress { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-3); }
+.fc-track { height: 4px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 16px; }
+.fc-track-fill { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s var(--ease); }
+
+.fc-card {
+  position: relative; width: 100%; min-height: 200px; border: none; background: transparent; cursor: pointer;
+  perspective: 1400px; padding: 0; font-family: inherit; text-align: left;
+}
+.fc-face {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; justify-content: center;
+  padding: 30px 32px; border-radius: var(--radius); border: 1px solid var(--line-soft);
+  backface-visibility: hidden; transition: transform 0.5s var(--ease); transform-style: preserve-3d;
+}
+.fc-front { background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 12%, var(--panel)), var(--panel)); transform: rotateY(0deg); }
+.fc-back { background: var(--panel-2, var(--panel)); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); transform: rotateY(180deg); }
+.fc-card.is-flipped .fc-front { transform: rotateY(-180deg); }
+.fc-card.is-flipped .fc-back { transform: rotateY(0deg); }
+.fc-kicker { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.fc-term { font-size: 1.7rem; font-weight: 600; color: #fff; line-height: 1.2; }
+.fc-def { font-size: 1.05rem; color: var(--text-1); line-height: 1.55; }
+.fc-hint { position: absolute; bottom: 16px; right: 20px; font-size: 0.72rem; color: var(--text-3); }
+
+.fc-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+.fc-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 999px; border: none;
+  background: var(--accent); color: var(--bg); font-weight: 600; font-size: 0.88rem; cursor: pointer;
+  transition: transform 0.2s var(--ease), filter 0.2s;
+}
+.fc-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.fc-btn.ghost { background: transparent; color: var(--text-1); border: 1px solid var(--line); }
+.fc-btn.knew { background: var(--green); color: #04140a; }
+.fc-btn.review { background: transparent; color: var(--amber); border: 1px solid color-mix(in srgb, var(--amber) 40%, transparent); }
+
+.fc-done { display: flex; align-items: center; gap: 24px; padding: 26px; border-radius: var(--radius); border: 1px solid var(--line-soft); background: var(--panel); }
+.fc-done-stat { flex-shrink: 0; text-align: center; }
+.fc-done-stat strong { display: block; font-size: 2.4rem; font-family: var(--font-mono); color: var(--accent); line-height: 1; }
+.fc-done-stat span { font-size: 0.82rem; color: var(--text-3); }
+.fc-done-title { font-size: 1.15rem; font-weight: 600; }
+.fc-done-msg { color: var(--text-2); margin: 6px 0 14px; font-size: 0.94rem; }
+.fc-done-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 560px) { .fc-done { flex-direction: column; text-align: center; } .fc-actions { justify-content: stretch; } .fc-actions .fc-btn { flex: 1; justify-content: center; } }
 
 /* ---------- Download button ---------- */
 .rm-dl-btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 26px; border-radius: 14px; background: linear-gradient(180deg, var(--green), #33a457); color: #04140a; font-weight: 600; font-size: 1rem; white-space: nowrap; transition: transform 0.25s var(--ease), box-shadow 0.25s; box-shadow: 0 10px 30px -10px rgba(66,190,101,0.6); }

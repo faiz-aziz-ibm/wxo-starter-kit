@@ -65,7 +65,9 @@ export function Footer() {
           </div>
           <div className="footer-col">
             <div className="footer-col-h">Reference</div>
+            <Link to="/roadmap">Learning Roadmap</Link>
             {extras.map((p) => <Link key={p.slug} to={p.path}>{p.title}</Link>)}
+            <Link to="/capstone">Capstone exam</Link>
           </div>
           <div className="footer-col">
             <div className="footer-col-h">Official</div>

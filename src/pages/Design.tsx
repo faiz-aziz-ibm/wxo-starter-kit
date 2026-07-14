@@ -5,6 +5,7 @@ import { DecisionFlow, ArchStack, ArchNode, DownArrow } from '../components/Diag
 import { CodeBlock } from '../components/CodeBlock'
 import { CodeTabs } from '../components/CodeTabs'
 import { Quiz } from '../components/Quiz'
+import { designQuiz } from '../data/quizzes'
 
 const phase = allPhases.find((p) => p.slug === 'design')!
 
@@ -261,50 +262,7 @@ def whoami(context: AgentRun) -> str:
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-design)" questions={[
-          {
-            level: 'Easy',
-            q: 'What does an agent’s description field primarily drive?',
-            options: ['How the agent talks to users', 'How a Supervisor routes tasks to it', 'Which LLM it uses', 'Its response length'],
-            answer: 1,
-            why: 'The Supervisor reads each collaborator’s description to decide where to route — it is functional code, not documentation.',
-          },
-          {
-            level: 'Easy',
-            q: 'Roughly how much of your time should go into design?',
-            options: ['0% — just build', 'About 20%', 'About 80%', 'All of it'],
-            answer: 1,
-            why: 'Spend ~20% designing and 80% building. Architecture decisions made up front save you far more time later.',
-          },
-          {
-            level: 'Medium',
-            q: 'A task has clear, deterministic steps that always run in the same order. What should you reach for?',
-            options: ['A single agent with a big prompt', 'An agentic workflow', 'More collaborators', 'A larger context window'],
-            answer: 1,
-            why: 'Deterministic sequences belong in an agentic workflow, not in agent instructions the model might skip.',
-          },
-          {
-            level: 'Medium', scenario: true,
-            q: 'You want the agent to greet the signed-in user by name without ever asking for it. What do you configure?',
-            options: ['A knowledge base of names', 'context_access_enabled + context_variables, referenced as {name}', 'A bigger LLM', 'react style'],
-            answer: 1,
-            why: 'Enable context access, declare the variable, and reference {name} in instructions — the runtime supplies it each run.',
-          },
-          {
-            level: 'Hard', scenario: true,
-            q: 'Your Supervisor routes almost every request to the HR agent, even finance questions. Most likely cause?',
-            options: ['The LLM is too small', 'The HR agent’s description is too broad and the others too vague', 'Too few collaborators', 'memory_enabled is off'],
-            answer: 1,
-            why: 'Routing depends entirely on collaborator descriptions. Tighten the over-broad one with explicit exclusions and strengthen the others with trigger phrases.',
-          },
-          {
-            level: 'Expert', scenario: true,
-            q: 'The same context variable name exists in both the JWT token and the pre:send instance method. Which value does the agent see?',
-            options: ['The instance-method value', 'The JWT value', 'Whichever is longer', 'It errors'],
-            answer: 1,
-            why: 'When a name collides, the JWT value takes precedence over the /runs (instance) value. Use different names to avoid surprises.',
-          },
-        ]} />
+        <Quiz accent="var(--c-design)" questions={designQuiz} />
       </Reveal>
     </PhaseShell>
   )

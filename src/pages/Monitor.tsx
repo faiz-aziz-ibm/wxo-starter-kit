@@ -4,6 +4,7 @@ import { Reveal, Callout, DataTable, Card } from '../components/Primitives'
 import { FlowRow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
+import { monitorQuiz } from '../data/quizzes'
 
 const phase = allPhases.find((p) => p.slug === 'monitor')!
 
@@ -125,50 +126,7 @@ orchestrate observability traces search \\
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-monitor)" questions={[
-          {
-            level: 'Easy',
-            q: 'The golden rule of agent debugging is…',
-            options: ['Start from the code', 'Start from the trace', 'Restart the agent', 'Increase the context window'],
-            answer: 1,
-            why: 'There is no stack trace — begin from the run trace to see where behaviour deviated, then work back to the cause.',
-          },
-          {
-            level: 'Easy',
-            q: 'What is a healthy latency target for a simple Q&A agent?',
-            options: ['Under 3 seconds', 'Under 60 seconds', 'Minutes', 'No target needed'],
-            answer: 0,
-            why: 'Simple Q&A should be under ~3s; tool-calling under ~8s per call; multi-agent under ~15s total.',
-          },
-          {
-            level: 'Medium', scenario: true,
-            q: 'An agent behaves early in a conversation but drifts after several turns. First thing to check?',
-            options: ['The favicon', 'Context accumulation / window filling up', 'The channel', 'The LLM vendor'],
-            answer: 1,
-            why: 'Later-turn drift usually means the context window is filling with history and bloated tool results — trim them.',
-          },
-          {
-            level: 'Hard', scenario: true,
-            q: 'The trace shows the agent answered a policy question confidently without ever calling the knowledge base — and it was wrong. Best fix?',
-            options: ['Use a bigger model', 'Add explicit fallback instructions and make tools return an explicit “not found”', 'Turn on react style', 'Add more collaborators'],
-            answer: 1,
-            why: 'It fell back to LLM knowledge. Tell it “if no data is found, say so — do not guess”, and never leave an empty return path from a tool.',
-          },
-          {
-            level: 'Hard', scenario: true,
-            q: 'A trace shows a long gap between a tool call and its response. Most likely cause?',
-            options: ['The prompt is too short', 'A slow external API behind that tool', 'The user typed slowly', 'Too few tools'],
-            answer: 1,
-            why: 'Gaps between call and response point at the tool’s external dependency. Add timeouts, cache hot data, or reduce the payload it fetches.',
-          },
-          {
-            level: 'Expert',
-            q: 'You need to debug a single agentic-workflow run node-by-node with timing. Where do you go?',
-            options: ['The agent’s chat preview', 'The Flow Inspector', 'The connections list', 'The channel settings'],
-            answer: 1,
-            why: 'The Flow Inspector is the purpose-built visual view of one workflow run — execution history, per-node timing, and where it went wrong.',
-          },
-        ]} />
+        <Quiz accent="var(--c-monitor)" questions={monitorQuiz} />
       </Reveal>
     </PhaseShell>
   )

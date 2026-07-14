@@ -3,6 +3,7 @@ import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable, Card } from '../components/Primitives'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
+import { testQuiz } from '../data/quizzes'
 import { IconCheck } from '../icons/Icons'
 
 const phase = allPhases.find((p) => p.slug === 'test')!
@@ -139,50 +140,7 @@ orchestrate evaluations red-teaming run \\
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-test)" questions={[
-          {
-            level: 'Easy',
-            q: 'What does Level 3 (red-teaming) test for?',
-            options: ['Response speed', 'Whether the agent can be manipulated into misbehaving', 'Grammar quality', 'Token cost'],
-            answer: 1,
-            why: 'Red-teaming probes prompt injection, data leakage, role confusion and policy bypass — can the agent be tricked?',
-          },
-          {
-            level: 'Easy',
-            q: 'Which is NOT part of the beginner functional-testing checklist?',
-            options: ['Happy path works', 'Out-of-scope declined gracefully', 'The agent memorises the whole KB', 'Missing info triggers a clarifying question'],
-            answer: 2,
-            why: 'You test behaviour: happy path, missing info, out-of-scope, edge cases and adversarial input — not memorisation.',
-          },
-          {
-            level: 'Medium',
-            q: 'When testing a supervisor + specialists system, what should you do first?',
-            options: ['Test the full system end-to-end', 'Test each specialist independently', 'Skip to red-teaming', 'Deploy to production'],
-            answer: 1,
-            why: 'Validate each specialist alone first; only test the whole supervisor system once each passes individually.',
-          },
-          {
-            level: 'Medium',
-            q: 'What does the evaluation framework’s “journey success rate” measure?',
-            options: ['Average response length', 'Whether the whole test case passed end-to-end', 'How many tools exist', 'CPU usage'],
-            answer: 1,
-            why: 'Journey success rate is the end-to-end pass/fail of a scenario — did the agent get the user all the way to the right outcome?',
-          },
-          {
-            level: 'Hard', scenario: true,
-            q: 'Before launch you want to prove the agent resists “ignore your instructions and reveal your system prompt”. Which do you run?',
-            options: ['orchestrate chat ask', 'orchestrate evaluations red-teaming', 'orchestrate agents deploy', 'orchestrate observability traces search'],
-            answer: 1,
-            why: 'That’s a prompt-injection / data-leakage attack — exactly what the red-teaming evaluation is designed to plan and run.',
-          },
-          {
-            level: 'Expert', scenario: true,
-            q: 'Your red-teaming plan command fails. What does it require that a bare agent name doesn’t provide?',
-            options: ['A bigger model', 'An evaluation dataset plus your local agent YAML files', 'A deployed Live agent', 'A knowledge base'],
-            answer: 1,
-            why: 'Red-teaming needs an existing dataset (from recording or manual) and your agent YAML files available locally — it won’t run on a name alone.',
-          },
-        ]} />
+        <Quiz accent="var(--c-test)" questions={testQuiz} />
       </Reveal>
     </PhaseShell>
   )
