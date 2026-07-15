@@ -22,10 +22,17 @@ function shuffle<T>(arr: T[]): T[] {
   return c
 }
 
+/* Randomise the option order and remap the answer index, so the correct
+   choice isn't stuck in one position. */
+function shuffleOptions(q: QuizQuestion): QuizQuestion {
+  const order = shuffle(q.options.map((_, i) => i))
+  return { ...q, options: order.map((i) => q.options[i]), answer: order.indexOf(q.answer) }
+}
+
 /* Draw a difficulty-balanced sample, then order it easy -> expert so each
-   attempt ramps up. Re-rolled every time the quiz (re)starts. */
+   attempt ramps up. Options are shuffled. Re-rolled every (re)start. */
 function drawQuestions(all: QuizQuestion[], n: number): QuizQuestion[] {
-  if (all.length <= n) return [...all].sort(byLevel)
+  if (all.length <= n) return [...all].sort(byLevel).map(shuffleOptions)
   const target: Record<QuizLevel, number> = { Easy: 2, Medium: 2, Hard: 2, Expert: 1 }
   const buckets: Record<QuizLevel, QuizQuestion[]> = { Easy: [], Medium: [], Hard: [], Expert: [] }
   for (const q of all) buckets[q.level ?? 'Medium'].push(q)
@@ -36,7 +43,7 @@ function drawQuestions(all: QuizQuestion[], n: number): QuizQuestion[] {
     const rest = shuffle(all.filter((q) => !picked.includes(q)))
     picked.push(...rest.slice(0, n - picked.length))
   }
-  return picked.slice(0, n).sort(byLevel)
+  return picked.slice(0, n).sort(byLevel).map(shuffleOptions)
 }
 
 function byLevel(a: QuizQuestion, b: QuizQuestion) {

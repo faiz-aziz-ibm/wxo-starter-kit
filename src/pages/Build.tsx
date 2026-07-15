@@ -15,6 +15,7 @@ const toc = [
   { id: 'naming', label: 'Naming & docstrings' },
   { id: 'connections', label: 'Connections' },
   { id: 'auth', label: 'Auth & OAuth flows' },
+  { id: 'tool-vs-flow', label: 'Tool or workflow?' },
   { id: 'workflows', label: 'Agentic workflows' },
   { id: 'nodes', label: 'The node catalogue' },
   { id: 'mapping', label: 'Data flow & mapping' },
@@ -241,6 +242,55 @@ environments:
           For <span className="icode">oauth_auth_on_behalf_of_flow</span>, support is currently limited to agents accessed through
           <strong> embedded web chat</strong>, and the connection is <span className="icode">member</span>-scoped by nature (it acts as each signed-in user).
         </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="tool-vs-flow" />
+        <h3>Python tool or agentic workflow?</h3>
+        <p className="prose">
+          The most common point of confusion. The short version: a <strong>Python tool</strong> is one focused capability the agent calls;
+          an <strong>agentic workflow</strong> orchestrates several steps in a guaranteed order, with branching, waiting, or human input.
+          Walk down these questions and stop at the first <span className="icode">Yes</span>.
+        </p>
+        <DecisionFlow accent="var(--c-build)" steps={[
+          { q: 'Do you need a human in the loop — an approval or input mid-execution?', branches: [
+            { label: 'YES', to: 'Agentic workflow (add a User Activity node).', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Is it a repeatable process with multiple deterministic steps, branching, looping, or waiting?', branches: [
+            { label: 'YES', to: 'Agentic workflow — it guarantees the order.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Must you collect structured input (e.g. a form) before the next action?', branches: [
+            { label: 'YES', to: 'Workflow with a User Activity node, then pass the inputs to a tool downstream.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Is it one focused capability the agent can call directly once it has the inputs?', branches: [
+            { label: 'YES', to: 'Python tool.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Is it mainly custom code or business logic inside a single step, not end-to-end orchestration?', branches: [
+            { label: 'YES', to: 'Python tool (wrap it in a workflow later only if the wider process needs orchestration).', tone: 'go' },
+            { label: 'NO', to: 'Agentic workflow — you need orchestration.', tone: 'stop' },
+          ] },
+        ]} />
+        <Callout kind="key" title="Build tools first, orchestrate later">
+          Keep your core business logic as <strong>modular, reusable Python tools</strong> — they’re the simplest, most testable unit and
+          can be shared across many use cases. Reach for an <strong>agentic workflow</strong> only when a <em>higher-level process</em> needs to
+          coordinate those tools: sequencing, branching, waiting, or human-in-the-loop. In short: <strong>a tool does one thing; a workflow
+          chains things together.</strong>
+        </Callout>
+        <DataTable
+          first="strong"
+          head={['Signal', 'Python tool', 'Agentic workflow']}
+          rows={[
+            ['Number of steps', 'One focused action', 'Several, in a set order'],
+            ['Human-in-the-loop', <Pill tone="red">No</Pill>, <Pill tone="green">Yes — approvals, forms</Pill>],
+            ['Branching / looping / waiting', <Pill tone="red">No</Pill>, <Pill tone="green">Yes</Pill>],
+            ['Reusability', 'High — call it anywhere', 'Wraps and coordinates tools'],
+            ['How the agent uses it', 'Calls it directly', 'Imported and called like a tool'],
+          ]}
+        />
       </Reveal>
 
       <Reveal as="section" className="reveal">
