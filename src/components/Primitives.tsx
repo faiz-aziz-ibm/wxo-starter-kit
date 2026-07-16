@@ -94,15 +94,15 @@ export function H2({ id, eyebrow, children }: { id?: string; eyebrow?: string; c
 }
 
 /* ---- Do / Don't lists ---- */
-export function DoDont({ dos, donts }: { dos: ReactNode[]; donts: ReactNode[] }) {
+export function DoDont({ dos, donts, doTitle = 'Do', dontTitle = 'Avoid' }: { dos: ReactNode[]; donts: ReactNode[]; doTitle?: string; dontTitle?: string }) {
   return (
     <div className="dodont">
       <div className="dd-col dd-do">
-        <div className="dd-head"><IconCheck width={16} height={16} /> Do</div>
+        <div className="dd-head"><IconCheck width={16} height={16} /> {doTitle}</div>
         <ul>{dos.map((d, i) => <li key={i}>{d}</li>)}</ul>
       </div>
       <div className="dd-col dd-dont">
-        <div className="dd-head"><IconX width={16} height={16} /> Avoid</div>
+        <div className="dd-head"><IconX width={16} height={16} /> {dontTitle}</div>
         <ul>{donts.map((d, i) => <li key={i}>{d}</li>)}</ul>
       </div>
     </div>

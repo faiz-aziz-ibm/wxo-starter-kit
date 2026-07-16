@@ -1,6 +1,6 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, Card, XRef } from '../components/Primitives'
+import { Reveal, Callout, DataTable, Card, XRef, DoDont } from '../components/Primitives'
 import { DecisionFlow, ArchStack, ArchNode, DownArrow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { CodeTabs } from '../components/CodeTabs'
@@ -14,6 +14,7 @@ const toc = [
   { id: 'canvas', label: 'Use case canvas' },
   { id: 'tree', label: 'Should this be an agent?' },
   { id: 'patterns', label: 'Architecture patterns' },
+  { id: 'how-many-agents', label: 'How many agents?' },
   { id: 'instructions', label: 'Good instructions' },
   { id: 'desc-vs-inst', label: 'Description vs instructions' },
   { id: 'context-vars', label: 'Context variables' },
@@ -133,6 +134,70 @@ export default function Design() {
           <DownArrow label="via A2A or external_chat protocol" />
           <ArchNode title="External Agent" sub="AgentForce / watsonx.ai / custom LangGraph or BeeAI" wide />
         </ArchStack>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="how-many-agents" />
+        <h3>How many agents? When to add a specialist</h3>
+        <p className="prose">
+          <strong>Default to one agent.</strong> Every extra agent adds routing complexity, hand-off latency and failure surface, so
+          “agent sprawl” is as much an anti-pattern as a bloated single agent. Split into a specialist only when a real boundary forces it —
+          most often, <strong>separation of concerns</strong>: think of each agent like a microservice that owns one well-defined
+          responsibility or business capability.
+        </p>
+        <Callout kind="note" title="What “separation of concerns” means here">
+          Each agent should own <strong>one cohesive responsibility</strong> — its own tools, knowledge, instructions and rules — so you can
+          build, test and change it in isolation. The tell that concerns are <em>tangled</em> and belong in separate agents: a change to one
+          area (say Finance) could accidentally break another (HR), or you can’t test one area on its own. The subtlety: this tells you
+          <em> where</em> to draw the boundary — along genuine, cohesive responsibilities — not that more boundaries are always better.
+          Split no finer than “something one person or team could own,” or the hand-off overhead outweighs the tidiness.
+        </Callout>
+        <DecisionFlow accent="var(--c-design)" steps={[
+          { q: 'Is it really one coherent domain with ≤7 tools and instructions you can keep tight (~20 lines)?', branches: [
+            { label: 'YES', to: 'One agent with tools. Don’t split yet.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Do the parts run in a fixed, deterministic order?', branches: [
+            { label: 'YES', to: 'Not multiple agents — use an agentic workflow.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Do the parts need different tools, knowledge, permissions, or reasoning per domain?', branches: [
+            { label: 'YES', to: 'Split into specialists behind a Supervisor.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Will a capability be reused elsewhere or owned by a different team?', branches: [
+            { label: 'YES', to: 'Give it its own agent (or tool) for reuse.', tone: 'go' },
+            { label: 'NO', to: 'Keep it inside one agent.', tone: 'stop' },
+          ] },
+        ]} />
+        <DoDont
+          dos={[
+            'Separation of concerns — one area can’t change without risking another',
+            'The work spans distinct domains (HR + Finance + IT), each with its own tools & rules',
+            'A single agent would need more than ~7 tools — that’s the split line',
+            'Instructions can’t stay tight without becoming contradictory (Mega-Prompt)',
+            'A part needs its own knowledge base, connection/permissions, or model',
+            'A capability will be reused, or owned by a different team',
+          ]}
+          donts={[
+            'Splitting for tidiness rather than a real limitation',
+            'Making “agents” that are really fixed, ordered steps — use a workflow',
+            'One coherent domain that fits inside 3–7 tools',
+            'So many tiny agents that routing and testing get harder (agent sprawl)',
+            'Giving the Supervisor its own domain tools — it should only route',
+          ]}
+          doTitle="Add a specialist when…"
+          dontTitle="Keep it one agent when…"
+        />
+        <Callout kind="key" title="The rules of thumb">
+          One agent per <strong>bounded responsibility</strong> (like a microservice). Keep each to
+          <XRef to="/build#tools"> 3–7 tools</XRef> and ~20 lines of instructions — if it grows past that, that’s your split line.
+          Use <strong>one Supervisor that routes</strong> + N specialists that execute, where N is the number of genuinely distinct domains.
+          Each specialist owns one job with a crisp <span className="icode">description</span> (descriptions drive routing), and you
+          <XRef to="/test"> test each specialist alone</XRef> before wiring them together. Prefer as few agents as the problem allows —
+          reach for tools and workflows before adding another agent (see <XRef to="/anti-patterns#ap-5">Tool Soup</XRef> and
+          <XRef to="/anti-patterns#ap-1"> Mega-Prompt</XRef>).
+        </Callout>
       </Reveal>
 
       <Reveal as="section" className="reveal">
