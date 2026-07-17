@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { IconCheck, IconX, IconSpark, IconArrow } from '../icons/Icons'
+import { IconCheck, IconX, IconSpark, IconArrow, IconArrowUpRight } from '../icons/Icons'
 
 export type QuizLevel = 'Easy' | 'Medium' | 'Hard' | 'Expert'
 export type QuizQuestion = {
@@ -9,6 +9,7 @@ export type QuizQuestion = {
   why: ReactNode // explanation shown after answering
   level?: QuizLevel
   scenario?: boolean // renders a "Scenario" tag
+  docs?: string // link to the relevant ADK doc page
 }
 
 const ORDER: QuizLevel[] = ['Easy', 'Medium', 'Hard', 'Expert']
@@ -29,9 +30,14 @@ function shuffleOptions(q: QuizQuestion): QuizQuestion {
   return { ...q, options: order.map((i) => q.options[i]), answer: order.indexOf(q.answer) }
 }
 
-/* Draw a difficulty-balanced sample, then order it easy -> expert so each
-   attempt ramps up. Options are shuffled. Re-rolled every (re)start. */
-function drawQuestions(all: QuizQuestion[], n: number): QuizQuestion[] {
+/* Draw a sample and shuffle options. With no filter, draw a difficulty-balanced
+   set ordered easy -> expert (a ramp). With a filter, draw only that level.
+   Re-rolled every (re)start. */
+function drawQuestions(all: QuizQuestion[], n: number, filter: QuizLevel | null = null): QuizQuestion[] {
+  if (filter) {
+    const pool = all.filter((q) => (q.level ?? 'Medium') === filter)
+    return shuffle(pool).slice(0, Math.min(n, pool.length)).map(shuffleOptions)
+  }
   if (all.length <= n) return [...all].sort(byLevel).map(shuffleOptions)
   const target: Record<QuizLevel, number> = { Easy: 2, Medium: 2, Hard: 2, Expert: 1 }
   const buckets: Record<QuizLevel, QuizQuestion[]> = { Easy: [], Medium: [], Hard: [], Expert: [] }
@@ -46,19 +52,52 @@ function drawQuestions(all: QuizQuestion[], n: number): QuizQuestion[] {
   return picked.slice(0, n).sort(byLevel).map(shuffleOptions)
 }
 
+const FILTERS: { key: QuizLevel | null; label: string }[] = [
+  { key: null, label: 'Mixed' }, { key: 'Easy', label: 'Easy' }, { key: 'Medium', label: 'Medium' },
+  { key: 'Hard', label: 'Hard' }, { key: 'Expert', label: 'Expert' },
+]
+
 function byLevel(a: QuizQuestion, b: QuizQuestion) {
   return ORDER.indexOf(a.level ?? 'Medium') - ORDER.indexOf(b.level ?? 'Medium')
 }
 
 /* A lightweight, self-contained knowledge check. Shows `count` random questions
    from the bank, one at a time, with instant feedback and a final score. */
-export function Quiz({ questions, accent = 'var(--blue)', count = 7, certification = false, passMark = 70 }: { questions: QuizQuestion[]; accent?: string; count?: number; certification?: boolean; passMark?: number }) {
-  const [active, setActive] = useState<QuizQuestion[]>(() => drawQuestions(questions, count))
+export function Quiz({ questions, accent = 'var(--blue)', count = 7, certification = false, passMark = 70, docsDefault, showFilter = true }: { questions: QuizQuestion[]; accent?: string; count?: number; certification?: boolean; passMark?: number; docsDefault?: string; showFilter?: boolean }) {
+  const [filter, setFilter] = useState<QuizLevel | null>(null)
+  const [active, setActive] = useState<QuizQuestion[]>(() => drawQuestions(questions, count, null))
   const [idx, setIdx] = useState(0)
   const [picked, setPicked] = useState<number | null>(null)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // available count per level, so the picker can disable empty levels
+  const avail = (f: QuizLevel | null) => (f ? questions.filter((q) => (q.level ?? 'Medium') === f).length : questions.length)
+  const pickFilter = (f: QuizLevel | null) => {
+    setFilter(f)
+    setActive(drawQuestions(questions, count, f))
+    setIdx(0); setPicked(null); setScore(0); setDone(false); setCopied(false)
+  }
+  const FilterRow = () =>
+    showFilter && !certification ? (
+      <div className="quiz-filter">
+        <span className="quiz-filter-label">Difficulty</span>
+        {FILTERS.map((f) => {
+          const n = avail(f.key)
+          return (
+            <button
+              key={f.label}
+              className={`quiz-filter-btn ${filter === f.key ? 'active' : ''}`}
+              onClick={() => pickFilter(f.key)}
+              disabled={n === 0}
+            >
+              {f.label}{f.key && <span className="quiz-filter-n">{n}</span>}
+            </button>
+          )
+        })}
+      </div>
+    ) : null
 
   const q = active[idx]
   const answered = picked !== null
@@ -75,7 +114,7 @@ export function Quiz({ questions, accent = 'var(--blue)', count = 7, certificati
     setPicked(null)
   }
   const restart = () => {
-    setActive(drawQuestions(questions, count)) // re-roll a fresh set
+    setActive(drawQuestions(questions, count, filter)) // re-roll, keep chosen difficulty
     setIdx(0); setPicked(null); setScore(0); setDone(false); setCopied(false)
   }
 
@@ -115,6 +154,7 @@ export function Quiz({ questions, accent = 'var(--blue)', count = 7, certificati
     const msg = pct === 100 ? 'Flawless — you’ve got this.' : pct >= 60 ? 'Solid. Re-skim the section to lock it in.' : 'Worth another read-through — then try again.'
     return (
       <div className="quiz" style={{ ['--accent' as string]: accent }}>
+        <FilterRow />
         <div className="quiz-result">
           <div className="quiz-score-ring" style={{ ['--pct' as string]: String(pct) }}>
             <span>{score}<small>/{active.length}</small></span>
@@ -131,6 +171,7 @@ export function Quiz({ questions, accent = 'var(--blue)', count = 7, certificati
 
   return (
     <div className="quiz" style={{ ['--accent' as string]: accent }}>
+      <FilterRow />
       <div className="quiz-head">
         <span className="quiz-badge"><IconSpark width={14} height={14} /> Knowledge check</span>
         <span className="quiz-head-right">
@@ -161,6 +202,13 @@ export function Quiz({ questions, accent = 'var(--blue)', count = 7, certificati
         <>
           <div className={`quiz-explain ${correct ? 'ok' : 'no'}`}>
             <strong>{correct ? 'Correct.' : 'Not quite.'}</strong> {q.why}
+            {(q.docs || docsDefault) && (
+              <div className="quiz-docs-row">
+                <a className="quiz-docs" href={q.docs || docsDefault} target="_blank" rel="noreferrer">
+                  Read it in the ADK docs <IconArrowUpRight width={13} height={13} />
+                </a>
+              </div>
+            )}
           </div>
           <div className="quiz-foot">
             <span className="quiz-foot-score">Score so far · {score}/{idx + 1}</span>

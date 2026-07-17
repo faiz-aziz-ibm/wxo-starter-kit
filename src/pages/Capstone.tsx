@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Reveal, Callout } from '../components/Primitives'
 import { Quiz } from '../components/Quiz'
 import { capstoneQuestions, allQuizzes } from '../data/quizzes'
+import { doc } from '../data/docs'
 import { IconTrophy, IconArrowUpRight } from '../icons/Icons'
 
 const ACCENT = 'var(--purple)'
@@ -47,7 +48,7 @@ export default function Capstone() {
 
             <Reveal as="section" className="reveal">
               <h3>Sit the exam</h3>
-              <Quiz questions={capstoneQuestions} count={12} certification passMark={70} accent={ACCENT} />
+              <Quiz questions={capstoneQuestions} count={12} certification passMark={70} accent={ACCENT} docsDefault={doc.guidelines} />
             </Reveal>
           </div>
         </div>

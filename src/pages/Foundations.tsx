@@ -1,10 +1,12 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, DoDont, Pill } from '../components/Primitives'
+import { Reveal, Callout, DataTable, DoDont, Pill, Cite } from '../components/Primitives'
 import { FlowRow, Spectrum } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
 import { foundationsQuiz } from '../data/quizzes'
+import { IdeMockup, CliTrainer } from '../components/Terminal'
+import { doc } from '../data/docs'
 
 const phase = allPhases.find((p) => p.slug === 'foundations')!
 
@@ -17,6 +19,7 @@ const toc = [
   { id: 'two-ways', label: 'Two ways to build' },
   { id: 'interface', label: 'Navigating wxO' },
   { id: 'adk', label: 'ADK setup' },
+  { id: 'cli-practice', label: 'Practice the CLI' },
   { id: 'check', label: 'Knowledge check' },
 ]
 
@@ -44,7 +47,7 @@ export default function Foundations() {
         <h3>What actually is an “agent”?</h3>
         <p className="prose">
           An <strong>LLM</strong> (large language model) is a prediction engine trained on text — on its own it can only produce words.
-          An <strong>agent</strong> wraps an LLM with a <strong>goal</strong>, a set of <strong>tools</strong> it can call, and <strong>instructions</strong> about how to behave.
+          An <strong>agent</strong> wraps an LLM with a <strong>goal</strong>, a set of <strong>tools</strong> it can call, and <strong>instructions</strong> about how to behave. <Cite href={doc.buildAgent} />
           Three things people often confuse:
         </p>
         <DataTable
@@ -183,6 +186,11 @@ export default function Foundations() {
       <Reveal as="section" className="reveal">
         <div id="adk" />
         <h3>ADK setup (for developers)</h3>
+        <p className="prose">
+          First, orientation — <strong>where do you actually type these commands?</strong> In a code editor (like VS Code), the
+          <strong> terminal</strong> is a panel at the bottom. That’s where the <span className="icode">orchestrate</span> CLI runs:
+        </p>
+        <IdeMockup />
         <p className="prose">Four commands take you from nothing to a working, authenticated CLI:</p>
         <CodeBlock lang="bash" title="ADK setup" code={`# 1. Install the ADK
 pip install ibm-watsonx-orchestrate
@@ -221,9 +229,20 @@ orchestrate agents list`} />
       </Reveal>
 
       <Reveal as="section" className="reveal">
+        <div id="cli-practice" />
+        <h3>Practice the CLI</h3>
+        <p className="prose">
+          The best way to get comfortable is to type the commands yourself. Read each task and enter the
+          <span className="icode"> orchestrate</span> command — small mistakes are fine, it checks the important parts.
+          Full command reference: <a href={doc.cli} target="_blank" rel="noreferrer" className="xref">ADK CLI docs <span aria-hidden>↗</span></a>
+        </p>
+        <CliTrainer />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-foundations)" questions={foundationsQuiz} />
+        <Quiz accent="var(--c-foundations)" questions={foundationsQuiz} docsDefault={doc.buildAgent} />
       </Reveal>
     </PhaseShell>
   )

@@ -1,9 +1,10 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, DoDont, Pill, Stat, XRef } from '../components/Primitives'
+import { Reveal, Callout, DataTable, DoDont, Pill, Stat, XRef, Cite } from '../components/Primitives'
 import { DecisionFlow, FlowRow } from '../components/Diagrams'
 import { Quiz } from '../components/Quiz'
 import { buildQuiz } from '../data/quizzes'
+import { doc } from '../data/docs'
 import { CodeBlock } from '../components/CodeBlock'
 
 const phase = allPhases.find((p) => p.slug === 'build')!
@@ -188,7 +189,7 @@ orchestrate connections set-credentials -a my_salesforce_conn \\
         <Callout kind="critical" title="You must run all three steps">
           <span className="icode">add</span> registers it, <span className="icode">configure</span> sets the auth type,
           <span className="icode"> set-credentials</span> provides the secret. Miss any step and your tool will not authenticate.
-          Supported auth: basic, bearer, api_key, key_value, and OAuth 2.0 flows.
+          Supported auth: basic, bearer, api_key, key_value, and OAuth 2.0 flows. <Cite href={doc.connections} />
         </Callout>
       </Reveal>
 
@@ -198,7 +199,7 @@ orchestrate connections set-credentials -a my_salesforce_conn \\
         <p className="prose">
           Simple keys (<span className="icode">api_key</span>, <span className="icode">bearer</span>, <span className="icode">basic</span>)
           are fine for a fixed service token. Reach for <strong>OAuth 2.0</strong> when the target system issues short-lived tokens or the
-          access must be tied to a <em>specific user</em>. wxO supports these flows — pick by <strong>who the call acts as</strong>:
+          access must be tied to a <em>specific user</em>. wxO supports these flows — pick by <strong>who the call acts as</strong>: <Cite href={doc.connections} />
         </p>
         <DataTable
           first="strong"
@@ -298,7 +299,7 @@ environments:
         <h3>Building agentic workflows</h3>
         <p className="prose">
           An agent decides what to do on the fly. An <strong>agentic workflow</strong> does the opposite: it runs a defined sequence in a
-          guaranteed order, with branching, loops, and human approvals. A workflow is imported and used like any other tool.
+          guaranteed order, with branching, loops, and human approvals. A workflow is imported and used like any other tool. <Cite href={doc.flowsOverview} />
         </p>
         <ul className="plain">
           <li>You need repeatable, predictable sequencing of agents, tools, and human tasks</li>
@@ -536,7 +537,7 @@ def get_customer_orders(customer_id: str, limit: int = 5) -> str:
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-build)" questions={buildQuiz} />
+        <Quiz accent="var(--c-build)" questions={buildQuiz} docsDefault={doc.pythonTool} />
       </Reveal>
     </PhaseShell>
   )

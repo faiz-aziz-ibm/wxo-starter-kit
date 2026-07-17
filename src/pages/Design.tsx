@@ -1,11 +1,12 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, Card, XRef, DoDont } from '../components/Primitives'
+import { Reveal, Callout, DataTable, Card, XRef, DoDont, Cite } from '../components/Primitives'
 import { DecisionFlow, ArchStack, ArchNode, DownArrow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { CodeTabs } from '../components/CodeTabs'
 import { Quiz } from '../components/Quiz'
 import { designQuiz } from '../data/quizzes'
+import { doc } from '../data/docs'
 
 const phase = allPhases.find((p) => p.slug === 'design')!
 
@@ -150,7 +151,7 @@ export default function Design() {
           build, test and change it in isolation. The tell that concerns are <em>tangled</em> and belong in separate agents: a change to one
           area (say Finance) could accidentally break another (HR), or you can’t test one area on its own. The subtlety: this tells you
           <em> where</em> to draw the boundary — along genuine, cohesive responsibilities — not that more boundaries are always better.
-          Split no finer than “something one person or team could own,” or the hand-off overhead outweighs the tidiness.
+          Split no finer than “something one person or team could own,” or the hand-off overhead outweighs the tidiness. <Cite href={doc.buildAgent} />
         </Callout>
         <DecisionFlow accent="var(--c-design)" steps={[
           { q: 'Is it really one coherent domain with ≤7 tools and instructions you can keep tight (~20 lines)?', branches: [
@@ -242,7 +243,7 @@ export default function Design() {
         />
         <Callout kind="critical" title="Descriptions drive routing">
           In a Supervisor-Specialist pattern, the Supervisor routes based on each specialist’s <span className="icode">description</span>.
-          Write it as if you are describing the specialist to another AI that must decide whether to send a task there.
+          Write it as if you are describing the specialist to another AI that must decide whether to send a task there. <Cite href={doc.guidelines} />
         </Callout>
         <CodeBlock lang="yaml" title="my_agent.agent.yaml — the two fields" code={`description: |          # other agents read this to ROUTE
   Handles employee HR queries: leave balances,
@@ -258,7 +259,7 @@ instructions: |         # the agent itself reads this to BEHAVE
         <p className="prose">
           Design decision: <strong>what does the agent already know about the user, before they say a word?</strong> Context
           variables let your app pass information — a user ID, name, role, region — straight into the agent runtime, so it never
-          has to ask for things it should already have. Plan these up front; retro-fitting them is painful.
+          has to ask for things it should already have. Plan these up front; retro-fitting them is painful. <Cite href={doc.contextVariables} />
         </p>
         <h4>Three steps to wire them up</h4>
         <ol className="prose" style={{ paddingLeft: 20, lineHeight: 1.9 }}>
@@ -327,7 +328,7 @@ def whoami(context: AgentRun) -> str:
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-design)" questions={designQuiz} />
+        <Quiz accent="var(--c-design)" questions={designQuiz} docsDefault={doc.guidelines} />
       </Reveal>
     </PhaseShell>
   )

@@ -1,10 +1,11 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable } from '../components/Primitives'
+import { Reveal, Callout, DataTable, Cite } from '../components/Primitives'
 import { ArchStack, ArchNode, DownArrow, FlowRow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
 import { deployQuiz } from '../data/quizzes'
+import { doc } from '../data/docs'
 
 const phase = allPhases.find((p) => p.slug === 'deploy')!
 
@@ -40,7 +41,7 @@ export default function Deploy() {
       <Reveal as="section" className="reveal">
         <div id="channels" />
         <h3>Channels: where does your agent live?</h3>
-        <p className="prose">After deploying, choose where users access the agent:</p>
+        <p className="prose">After deploying, choose where users access the agent: <Cite href={doc.channels} /></p>
         <DataTable
           first="strong"
           head={['Channel', 'Best for']}
@@ -96,7 +97,7 @@ export default function Deploy() {
           { title: 'QA Review', sub: 'evaluation gate' },
           { title: 'Live', sub: 'production' },
         ]} />
-        <p className="prose">Export from one environment and import to the next:</p>
+        <p className="prose">Export from one environment and import to the next: <Cite href={doc.cicd} /></p>
         <CodeBlock lang="bash" title="Export → import between environments" code={`# Export from one environment
 orchestrate agents export --name hr_assistant -o hr_assistant.zip
 
@@ -112,7 +113,7 @@ orchestrate agents import -f hr_assistant.zip`} />
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-deploy)" questions={deployQuiz} />
+        <Quiz accent="var(--c-deploy)" questions={deployQuiz} docsDefault={doc.channels} />
       </Reveal>
     </PhaseShell>
   )

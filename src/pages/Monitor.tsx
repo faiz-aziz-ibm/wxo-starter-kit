@@ -1,10 +1,11 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, Card } from '../components/Primitives'
+import { Reveal, Callout, DataTable, Card, Cite } from '../components/Primitives'
 import { FlowRow } from '../components/Diagrams'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
 import { monitorQuiz } from '../data/quizzes'
+import { doc } from '../data/docs'
 
 const phase = allPhases.find((p) => p.slug === 'monitor')!
 
@@ -49,7 +50,7 @@ export default function Monitor() {
       <Reveal as="section" className="reveal">
         <div id="traces" />
         <h3>Using traces</h3>
-        <p className="prose">Traces are the most powerful debugging tool for agents. Via the ADK:</p>
+        <p className="prose">Traces are the most powerful debugging tool for agents. <Cite href={doc.tracesCli} /> Via the ADK:</p>
         <CodeBlock lang="bash" title="Search recent traces" code={`orchestrate observability traces search \\
   --agent-name hr_assistant \\
   --last 1h
@@ -75,7 +76,7 @@ orchestrate observability traces search \\
       <Reveal as="section" className="reveal">
         <div id="perf" />
         <h3>Performance monitoring</h3>
-        <p className="prose">Key latency budgets to establish:</p>
+        <p className="prose">Key latency budgets to establish: <Cite href={doc.observability} /></p>
         <DataTable
           first="strong"
           head={['Agent type', 'Target latency']}
@@ -126,7 +127,7 @@ orchestrate observability traces search \\
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-monitor)" questions={monitorQuiz} />
+        <Quiz accent="var(--c-monitor)" questions={monitorQuiz} docsDefault={doc.traces} />
       </Reveal>
     </PhaseShell>
   )

@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import '../styles/home.css'
+import '../styles/roadmap.css'
 import { phases, extras, roadmap } from '../data/phases'
 import { LifecycleRing } from '../components/LifecycleRing'
 import { Reveal, H2, Card } from '../components/Primitives'
 import {
   IconArrow, IconSpark, IconUsers, IconBuild, IconTarget,
-  IconCheck, IconBook, IconArrowUpRight,
+  IconCheck, IconBook, IconArrowUpRight, IconDownload,
 } from '../icons/Icons'
 
 const audiences = [
@@ -45,6 +46,11 @@ export default function Home() {
               <span className="hero-meta-item"><IconBook width={16} height={16} /> 9 guided chapters</span>
               <span className="hero-meta-item"><IconSpark width={16} height={16} /> Copy-ready examples</span>
             </div>
+          </Reveal>
+          <Reveal delay={400}>
+            <p className="hero-byline">
+              Curated by <strong>Faiz Aziz</strong> · Data &amp; AI Delivery Consultant, IBM Expert Labs
+            </p>
           </Reveal>
         </div>
       </section>
@@ -113,6 +119,39 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* BOB TOOLKIT */}
+      <section className="section">
+        <div className="container">
+          <Reveal><H2 eyebrow="Build faster">Meet Bob, your wxO Agent Architect</H2></Reveal>
+          <Reveal delay={80}>
+            <div className="rm-download">
+              <div className="rm-download-grid">
+                <div>
+                  <h3>Turn your AI assistant into a wxO Architect</h3>
+                  <p>
+                    A ready-to-drop <span className="icode">.bob</span> folder that gives your coding assistant an
+                    <strong> Agent Architect</strong> mode, both <strong>ADK MCP servers</strong> (docs + platform), and four
+                    <strong> wxO skills</strong> — so it can scaffold agents, tools and flows against the live ADK.
+                  </p>
+                  <div className="rm-download-items">
+                    {['Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', 'wxO skills'].map((t) => (
+                      <span className="rm-chip" key={t}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <img className="rm-bob" src="./bob_logo.svg" alt="Bob, the WXO Agent Architect mascot" />
+                  <a className="rm-dl-btn" href="./downloads/wxo-architect-toolkit.zip" download>
+                    <IconDownload width={20} height={20} /> Download toolkit
+                  </a>
+                  <div className="rm-dl-sub">.zip · ~57&nbsp;KB · <Link to="/roadmap" style={{ color: 'var(--blue-bright)' }}>how it works</Link></div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 

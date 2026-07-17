@@ -1,9 +1,10 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, Card } from '../components/Primitives'
+import { Reveal, Callout, DataTable, Card, Cite } from '../components/Primitives'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
 import { testQuiz } from '../data/quizzes'
+import { doc } from '../data/docs'
 import { IconCheck } from '../icons/Icons'
 
 const phase = allPhases.find((p) => p.slug === 'test')!
@@ -68,7 +69,7 @@ export default function Test() {
       <Reveal as="section" className="reveal">
         <div id="eval" />
         <h3>Level 2 · Evaluation framework</h3>
-        <p className="prose">The wxO evaluation framework lets you create test datasets and measure agent performance systematically.</p>
+        <p className="prose">The wxO evaluation framework lets you create test datasets and measure agent performance systematically. <Cite href={doc.evaluate} /></p>
         <CodeBlock lang="bash" title="Step 1 — record test data" code={`# Start a recording session; captures the next chat session
 # (NOT scoped to a specific agent name; records from the chat UI)
 orchestrate evaluations record --output-dir ./chat_recordings
@@ -88,7 +89,7 @@ orchestrate evaluations analyze --data-path ./evaluation_results/`} />
       <Reveal as="section" className="reveal">
         <div id="red" />
         <h3>Level 3 · Red-teaming (security &amp; reliability)</h3>
-        <p className="prose">Red-teaming tests whether your agent can be manipulated into doing something it should not.</p>
+        <p className="prose">Red-teaming tests whether your agent can be manipulated into doing something it should not. <Cite href={doc.redTeaming} /></p>
         <CodeBlock lang="bash" title="The three red-teaming steps" code={`# 1. List available attack types
 orchestrate evaluations red-teaming list-attacks
 
@@ -140,7 +141,7 @@ orchestrate evaluations red-teaming run \\
       <Reveal as="section" className="reveal">
         <div id="check" />
         <h3>Knowledge check</h3>
-        <Quiz accent="var(--c-test)" questions={testQuiz} />
+        <Quiz accent="var(--c-test)" questions={testQuiz} docsDefault={doc.evaluateOverview} />
       </Reveal>
     </PhaseShell>
   )

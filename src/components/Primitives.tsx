@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  IconInfo, IconAlert, IconBulb, IconKey, IconSpark, IconCheck, IconX, IconChat, IconArrowUpRight,
+  IconInfo, IconAlert, IconBulb, IconKey, IconSpark, IconCheck, IconX, IconChat, IconArrowUpRight, IconBook,
 } from '../icons/Icons'
 
 /* ---- Cross-reference link (jump to a related section on another page) ---- */
@@ -10,6 +10,15 @@ export function XRef({ to, children }: { to: string; children: ReactNode }) {
     <Link to={to} className="xref">
       {children}<IconArrowUpRight width={13} height={13} />
     </Link>
+  )
+}
+
+/* ---- Citation: a small inline link to the official ADK docs for a claim ---- */
+export function Cite({ href, label = 'ADK docs' }: { href: string; label?: string }) {
+  return (
+    <a className="cite" href={href} target="_blank" rel="noreferrer" title="IBM watsonx Orchestrate ADK documentation">
+      <IconBook width={11} height={11} />{label}
+    </a>
   )
 }
 

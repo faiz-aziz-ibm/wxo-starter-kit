@@ -16,6 +16,8 @@
 .hero-meta { display: flex; gap: 26px; margin-top: 44px; flex-wrap: wrap; justify-content: center; color: var(--text-2); font-size: 0.86rem; }
 .hero-meta-item { display: flex; align-items: center; gap: 8px; }
 .hero-meta-item svg { color: var(--blue-bright); }
+.hero-byline { margin-top: 22px; text-align: center; font-size: 0.86rem; color: var(--text-3); }
+.hero-byline strong { color: var(--text-1); font-weight: 600; }
 
 /* Floating orbs behind hero */
 .hero-orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; z-index: 0; animation: float 14s ease-in-out infinite; }
