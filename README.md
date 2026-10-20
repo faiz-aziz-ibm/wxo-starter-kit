@@ -43,23 +43,21 @@ npm run build    # outputs to ./dist
 npm run preview  # preview the production build
 ```
 
-## Deploy to GitHub Pages
+## Deploy
 
-Two options — both work because the app uses `base: './'` + `HashRouter`.
+The site is published in two places. Both work at any path because the app uses `base: './'` + `HashRouter`.
 
-### Option A — GitHub Actions (recommended)
+| Where | Who can see it | How it deploys |
+| --- | --- | --- |
+| **[faiz-aziz-ibm.github.io/wxo-starter-kit](https://faiz-aziz-ibm.github.io/wxo-starter-kit/)** (github.com) | Anyone, including clients | **Automatic.** `.github/workflows/deploy.yml` builds and deploys on every push to `main` (Pages source: GitHub Actions). |
+| **pages.github.ibm.com** (IBM GitHub Enterprise) | IBMers (w3id login) | **Manual.** Run `npm run deploy` from `main`: it builds and pushes `./dist` to the `gh-pages` branch, which that Pages site serves. Pushing to `main` alone does not update it. |
 
-1. Push this repo to GitHub.
-2. In **Settings → Pages**, set **Source → GitHub Actions**.
-3. The included workflow at `.github/workflows/deploy.yml` builds and deploys on every push to `main`.
-
-### Option B — manual, from your machine
+The repo has two remotes, so a release is:
 
 ```bash
-npm run deploy   # builds and pushes ./dist to the gh-pages branch
+git push origin main && git push github main   # IBM GHE + github.com (github.com deploys itself)
+npm run deploy                                 # refresh the IBM GHE Pages site
 ```
-
-Then set **Settings → Pages → Source → Deploy from a branch → `gh-pages`**.
 
 ## The downloadable Architect Toolkit
 
@@ -83,4 +81,3 @@ tool counts → *Tool Soup*). These deep links work under `HashRouter` via a has
 - Unofficial community guide. Platform target: ADK v2.12+. UI screenshots change between releases —
   capture those from your own environment.
 - **Curated by Faiz Aziz** · faiz.aziz@ibm.com · Data & AI Delivery Consultant, IBM Expert Labs.
-# wxo-starter-kit
