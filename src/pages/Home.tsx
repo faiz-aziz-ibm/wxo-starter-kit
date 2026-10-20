@@ -171,11 +171,11 @@ export default function Home() {
                   <h3>Turn your AI assistant into a wxO Architect</h3>
                   <p>
                     A ready-to-drop <span className="icode">.bob</span> folder that gives your coding assistant an
-                    <strong> Agent Architect</strong> mode, both <strong>ADK MCP servers</strong> (docs + platform), and four
-                    <strong> wxO skills</strong> — so it can scaffold agents, tools and flows against the live ADK.
+                    <strong> Agent Architect</strong> mode, both <strong>ADK MCP servers</strong> (docs + platform), and eight
+                    <strong> wxO skills</strong> — so it can design, build, review and debug agents and flows against the live ADK.
                   </p>
                   <div className="rm-download-items">
-                    {['Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', 'wxO skills'].map((t) => (
+                    {['Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', '8 wxO skills'].map((t) => (
                       <span className="rm-chip" key={t}>{t}</span>
                     ))}
                   </div>
@@ -185,7 +185,7 @@ export default function Home() {
                   <a className="rm-dl-btn" href="./downloads/wxo-architect-toolkit.zip" download>
                     <IconDownload width={20} height={20} /> Download toolkit
                   </a>
-                  <div className="rm-dl-sub">.zip · ~57&nbsp;KB · <Link to="/roadmap" style={{ color: 'var(--blue-bright)' }}>how it works</Link></div>
+                  <div className="rm-dl-sub">.zip · ~295&nbsp;KB · <Link to="/roadmap" style={{ color: 'var(--blue-bright)' }}>how it works</Link></div>
                 </div>
               </div>
             </div>

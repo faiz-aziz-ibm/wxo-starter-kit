@@ -139,7 +139,7 @@ ibm-watsonx-orchestrate-mcp-server`} />
         </Callout>
         <Callout kind="tip" title="Get it pre-wired — the Architect Toolkit">
           The <Link to="/roadmap" className="xref">Architect Toolkit<IconArrowUpRight width={13} height={13} /></Link> bundles this
-          server and the docs server (with a ready <span className="icode">mcp.json</span>), plus an Agent Architect mode and four wxO
+          server and the docs server (with a ready <span className="icode">mcp.json</span>), plus an Agent Architect mode and eight wxO
           skills — as a single downloadable <span className="icode">.bob</span> folder. No manual wiring.
         </Callout>
         <div style={{ margin: '18px 0', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>

@@ -357,10 +357,11 @@ def recent_orders(customer_id: str, limit: int = 3) -> str:
               <p>
                 A ready-to-drop <span className="icode">.bob</span> folder that turns your coding assistant into
                 <strong> Bob</strong>, the <strong>WXO Agent Architect</strong>. You get his architect mode, the two
-                <strong> ADK MCP servers</strong> (docs + platform), and four <strong>wxO skills</strong> for the full build loop.
+                <strong> ADK MCP servers</strong> (docs + platform), and eight <strong>wxO skills</strong> — from design and build through
+                agent and workflow review to debugging live traces.
               </p>
               <div className="rm-download-items">
-                {['WXO Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', 'solution-architect', 'sop-builder', 'wxo-builder', 'wxo-analyzer'].map((t) => (
+                {['WXO Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', 'solution-architect', 'sop-builder', 'wxo-builder', 'wxo-analyzer', 'agent-instructions-evaluator', 'agentic-workflow-advisor', 'telemetry-analyzer', 'customercare-mcp-builder'].map((t) => (
                   <span className="rm-chip" key={t}>{t}</span>
                 ))}
               </div>
@@ -370,7 +371,7 @@ def recent_orders(customer_id: str, limit: int = 3) -> str:
               <a className="rm-dl-btn" href="./downloads/wxo-architect-toolkit.zip" download>
                 <IconDownload width={20} height={20} /> Download toolkit
               </a>
-              <div className="rm-dl-sub">.zip · ~57&nbsp;KB · includes setup guide</div>
+              <div className="rm-dl-sub">.zip · ~295&nbsp;KB · includes setup guide</div>
             </div>
           </div>
         </div>

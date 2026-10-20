@@ -3,12 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "The watsonx Orchestrate Starter Kit — a friendly, premium guide to the full agentic AI development lifecycle.",
+  "description": "The watsonx Orchestrate Starter Kit \u2014 a friendly, premium guide to the full agentic AI development lifecycle.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "toolkit": "cd toolkit && rm -f ../public/downloads/wxo-architect-toolkit.zip && zip -qr -X ../public/downloads/wxo-architect-toolkit.zip wxo-architect-toolkit -x '*.DS_Store' '*__pycache__*'"
   },
   "dependencies": {
     "framer-motion": "^11.11.17",
