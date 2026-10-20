@@ -21,6 +21,7 @@ const toc = [
   { id: 'nodes', label: 'The node catalogue' },
   { id: 'mapping', label: 'Data flow & mapping' },
   { id: 'kb', label: 'Knowledge bases' },
+  { id: 'skills', label: 'Agent skills' },
   { id: 'multi', label: 'Multi-agent systems' },
   { id: 'context', label: 'Context window' },
   { id: 'check', label: 'Knowledge check' },
@@ -45,7 +46,7 @@ export default function Build() {
 kind: native
 name: hr_assistant
 llm: groq/openai/gpt-oss-120b   # a common wxO model; change only with a reason
-style: default
+style: react_core               # the current, recommended style (see below)
 description: |
   Handles employee HR queries including leave balances,
   policy questions, and onboarding ticket creation.
@@ -68,36 +69,36 @@ orchestrate agents list`} />
       <Reveal as="section" className="reveal">
         <div id="styles" />
         <h3>Agent styles: which one to pick?</h3>
-        <p className="prose">The agent style controls how the agent follows instructions. wxO formally describes three:</p>
+        <p className="prose">
+          The agent style controls how the agent reasons through a request and how it behaves when collaborating with other
+          agents. <strong>This changed in recent releases.</strong> wxO has consolidated on a single style — <span className="icode">react_core</span>
+          (“ReAct Core”) — and the older styles are now deprecated. For new agents, <strong>use <span className="icode">react_core</span></strong>. <Cite href={doc.agentStyles} />
+        </p>
         <DataTable
           first="strong"
-          head={['Style', 'What it does', 'Best for']}
+          head={['Style', 'Status', 'What it does', 'Best for']}
           rows={[
-            ['default', 'Uses LLM prompts to decide tools & actions dynamically', 'Simple, linear tasks needing flexibility'],
-            ['react', 'Iterative loop: Think → Act → Observe. Adjusts to outcomes', 'Complex, evolving tasks needing reasoning'],
-            ['react_intrinsic', 'Like ReAct, but uses the model’s native chain-of-thought', 'Complex tasks with models that support intrinsic reasoning'],
+            [<><span className="icode">react_core</span> ✦</>, <Pill tone="green">Recommended</Pill>, 'Uses the model’s built-in function calling with improved collaboration accuracy', 'Everything — simple tasks, complex reasoning, and multi-agent workflows'],
+            ['default', <Pill tone="amber">Deprecated</Pill>, 'Uses the model’s built-in function calling', 'Legacy agents only — migrate to react_core'],
+            ['react', <Pill tone="amber">Deprecated</Pill>, 'Prompt-based Think → Act → Observe loop', 'Legacy agents on models with weak native tool-calling'],
           ]}
         />
-        <Callout kind="tip" title="Start with default">
-          Only switch styles when you have a specific, diagnosed failure. Some ADK versions expose extra styles such as
-          <span className="icode"> planner</span> and <span className="icode">custom</span> — confirm availability for your version first.
+        <Callout kind="warning" title="default and react are being removed">
+          IBM has flagged <span className="icode">default</span> and <span className="icode">react</span> for removal in a future
+          release — only <span className="icode">react_core</span> remains supported. The old <span className="icode">planner</span>
+          (Plan-Act) style is gone too. Export existing agents and switch <span className="icode">style:</span> to
+          <span className="icode"> react_core</span>, then re-run your evaluations before promoting. <Cite href={doc.agentStylesMigration} label="Migration guide" />
         </Callout>
-        <h4>default vs. react — the real trade-offs</h4>
-        <DataTable
-          first="strong"
-          head={['Dimension', 'default', 'react']}
-          rows={[
-            ['Speed', 'Faster, fewer LLM calls', 'Slower, multiple calls per turn'],
-            ['Latency', 'Lower', 'Higher (~1.5–3× per turn)'],
-            ['Token cost', 'Lower', 'Higher (each step costs tokens)'],
-            ['Transparency', 'Black box (in/out only)', 'Visible chain-of-thought'],
-            ['Debugging', 'Harder to see failures', 'Easier — trace shows every step'],
-            ['Risk', 'May pick wrong tool silently', 'Can loop if instructions unclear'],
-          ]}
-        />
-        <Callout kind="warning" title="react increases latency">
-          Each Reason-Act-Observe cycle is a separate LLM call. An agent that completes in 3s on <span className="icode">default</span>
-          may take 8–12s on <span className="icode">react</span>. Always benchmark before committing.
+        <Callout kind="note" title="react_intrinsic was renamed to react_core">
+          If you have agents set to <span className="icode">react_intrinsic</span>, that is now <span className="icode">react_core</span>.
+          The ADK still accepts <span className="icode">react_intrinsic</span> as an alias and it behaves identically; the REST API
+          continues to use <span className="icode">react_intrinsic</span> as the value. New YAML should just say <span className="icode">react_core</span>.
+        </Callout>
+        <Callout kind="key" title="Some models override the style entirely">
+          If your agent uses <span className="icode">gpt-oss-120b</span> or <span className="icode">gpt-5.4</span>, the style setting is
+          ignored — the agent runs ReAct Core automatically. Since the starter examples here use <span className="icode">groq/openai/gpt-oss-120b</span>,
+          they already behave as <span className="icode">react_core</span> regardless of what the YAML says. Setting
+          <span className="icode"> style: react_core</span> explicitly keeps the config honest and future-proof.
         </Callout>
       </Reveal>
 
@@ -436,13 +437,139 @@ documents:
       </Reveal>
 
       <Reveal as="section" className="reveal">
+        <div id="skills" />
+        <h3>Agent skills: instructions that load only when needed</h3>
+        <p className="prose">
+          An <strong>agent skill</strong> is a scoped, reusable instruction set the agent loads <em>on demand</em> — for one
+          specific procedure like processing an invoice, submitting an order, or running a policy review. Instead of cramming every
+          procedure into one giant <span className="icode">instructions</span> block, you package each as a skill. The agent reads only
+          each skill’s <strong>name</strong> and <strong>description</strong> at startup, then loads the full body into context
+          <em> only</em> when a request matches. <Cite href={doc.agentSkills} /></p>
+        <Callout kind="key" title="Progressive disclosure — why this matters">
+          Skills are the direct antidote to bloated instructions and the <XRef to="/anti-patterns#ap-3">Firehose Effect</XRef>.
+          Ten procedures in one prompt means all ten sit in the context window on every turn. As ten skills, only the one relevant
+          procedure is ever loaded — the active context stays small, routing stays sharp, and each procedure is maintained (and reused)
+          on its own.
+        </Callout>
+        <h4>Anatomy of a skill</h4>
+        <p className="prose">A skill is a directory with a <span className="icode">SKILL.md</span> at its root — YAML frontmatter plus a Markdown instruction body — and two optional folders:</p>
+        <CodeBlock lang="text" title="Skill directory structure" code={`order-placement/
+├── SKILL.md          # Required: frontmatter (name, description) + instructions
+├── scripts/          # Optional: Python (.py) the agent runs for compute/validation
+└── references/       # Optional: .md / .txt / .json the agent consults on demand`} />
+        <CodeBlock lang="yaml" title="SKILL.md" code={`---
+name: order-placement
+description: Place and track customer orders. Use when a user wants to
+  submit a new order or check the status of an existing order.
+allowed-tools:            # optional — restrict which tools this skill may call
+  - create_order
+  - update_order_status
+---
+
+# Order Placement
+You help customers place orders in compliance with company policy.
+
+## Instructions
+1. Collect product_id, quantity, and unit_price from the user.
+2. Before placing any order, run the validation script validate_order.py with:
+   args={"product_id": "<product_id>", "quantity": <quantity>, "unit_price": <unit_price>}
+   Do not call create_order until validation passes.
+3. For limits and shipping rules, read the policy reference: ORDER_POLICY.md
+4. Call create_order(...) and return the order_id and status.`} />
+        <Callout kind="critical" title="The description is the only routing signal">
+          Just like a collaborator’s description, the agent picks a skill purely from its <span className="icode">name</span> and
+          <span className="icode"> description</span> — it does not read the body or scripts to decide. State <strong>what it does and
+          when to use it</strong> (“Use when a user asks for order status…”), keep it to a sentence or two, and make it specific enough
+          that two skills never overlap. Vague descriptions mean the wrong skill loads.
+        </Callout>
+        <h4>Attaching and managing skills</h4>
+        <p className="prose">Import the skill into your environment, then name it in the agent’s <span className="icode">skills</span> list — alongside <span className="icode">tools</span>:</p>
+        <CodeBlock lang="bash" title="Import & verify (the orchestrate skills command group)" code={`# Import a whole skill dir (uploads SKILL.md, scripts/*.py, references/*)
+orchestrate skills import --dir skills/order-placement/
+
+# Bulk-import many skills, upsert by name — the pattern for CI pipelines
+orchestrate skills import --dir skills/ --recursive --upsert
+
+orchestrate skills list                         # verify it registered
+orchestrate skills get --skill-name order-placement`} />
+        <CodeBlock lang="yaml" title="ops_assistant.agent.yaml — skills sit next to tools" code={`spec_version: v1
+kind: native
+name: ops_assistant
+llm: groq/openai/gpt-oss-120b
+style: react_core
+description: Operations assistant for order placement and inventory.
+instructions: |
+  You handle order placement and inventory analysis.
+tools:
+  - get_customer_profile          # agent-level: available under every skill
+skills:
+  - order-placement               # each skill declares its own allowed-tools
+  - inventory-check`} />
+        <Callout kind="note" title="Scripts run sandboxed">
+          Skill scripts are for compute (validation, reshaping data) — a plain <span className="icode">run(...)</span> function, validated
+          at upload. Network and filesystem access are blocked (<span className="icode">os</span>, <span className="icode">requests</span>,
+          <span className="icode"> open</span>, <span className="icode">eval</span>, URLs, <span className="icode">pip install</span>, and more are
+          rejected). If a procedure needs to call an external system, that belongs in a <strong>tool</strong>, not a skill script. <Cite href={doc.agentSkillsManage} label="Manage skills" />
+        </Callout>
+        <h4>Prompt instruction, skill, tool, or workflow?</h4>
+        <p className="prose">
+          These four are easy to confuse. The distinction: <strong>instructions</strong> are always-on behaviour; a <strong>skill</strong>
+          is a procedure loaded on demand; a <strong>tool</strong> performs an action; a <strong>workflow</strong> enforces a sequence.
+          Walk down and stop at the first <span className="icode">Yes</span>.
+        </p>
+        <DecisionFlow accent="var(--c-build)" steps={[
+          { q: 'Does it perform an action — call an API, run deterministic logic, hit a system?', branches: [
+            { label: 'YES', to: 'A tool (Python/OpenAPI/MCP). A skill orchestrates tools; it doesn’t replace them.', tone: 'stop' },
+            { label: 'NO', to: 'Continue — it’s guidance, not an action', tone: 'go' },
+          ] },
+          { q: 'Must several steps run in a guaranteed order, with branching, waiting, or human approval?', branches: [
+            { label: 'YES', to: 'An agentic workflow — it guarantees the sequence.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Should this guidance apply to every request (persona, tone, global rules, safety)?', branches: [
+            { label: 'YES', to: 'Agent instructions — always-on behaviour belongs in the prompt.', tone: 'stop' },
+            { label: 'NO', to: 'Continue — it’s situational', tone: 'go' },
+          ] },
+          { q: 'Is it a self-contained procedure for one task, relevant only sometimes, reused or maintained on its own?', branches: [
+            { label: 'YES', to: 'An agent skill — scoped instructions that load only when that task comes up.', tone: 'stop' },
+            { label: 'NO', to: 'Keep it as a few lines of instructions.', tone: 'go' },
+          ] },
+        ]} />
+        <DataTable
+          first="strong"
+          head={['Signal', 'Prompt instruction', 'Agent skill']}
+          rows={[
+            ['When it loads', 'Every turn, always in context', 'On demand, only when the description matches'],
+            ['Scope', 'Global behaviour, persona, safety rules', 'One specific procedure or task'],
+            ['Context cost', 'Pays on every request', 'Near-zero until activated'],
+            ['Reuse', 'Copied between agents by hand', 'Imported once, attached to many agents'],
+            ['Best when', 'A handful of short, always-true rules', 'Many procedures, or any one that is long or reused'],
+          ]}
+        />
+        <DoDont
+          dos={[
+            'Keep instructions for persona, tone, and always-on rules',
+            'Move each distinct procedure into its own skill',
+            'Write the description as “what it does + when to use it”',
+            'Use allowed-tools to scope a skill to just the tools it needs',
+          ]}
+          donts={[
+            'Pack ten procedures into one instructions block',
+            'Duplicate the same workflow across five agents’ prompts',
+            'Put API calls or network access in a skill script — use a tool',
+            'Write vague, overlapping descriptions the agent can’t tell apart',
+          ]}
+        />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
         <div id="multi" />
         <h3>Multi-agent systems: building the team</h3>
         <CodeBlock lang="yaml" title="supervisor.agent.yaml" code={`spec_version: v1
 kind: native
 name: aviva_supervisor
 llm: groq/openai/gpt-oss-120b
-style: default
+style: react_core
 description: |
   Main entry point for all Aviva employee requests.
   Routes HR queries to hr_agent, Finance to finance_agent,

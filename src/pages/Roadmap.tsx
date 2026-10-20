@@ -118,7 +118,7 @@ def split_bill(total: float, people: int, tip_percent: float = 0.0) -> str:
 kind: native
 name: bill_splitter
 llm: groq/openai/gpt-oss-120b
-style: default
+style: react_core
 description: Splits bills evenly and applies tips for a group.
 instructions: |
   Help the user split a bill. Always call split_bill for the maths —
@@ -153,7 +153,7 @@ def due_date(business_days: int, holidays: str = "") -> str:
 kind: native
 name: sla_agent
 llm: groq/openai/gpt-oss-120b
-style: default
+style: react_core
 description: Calculates SLA due dates in working days for support tickets.
 instructions: |
   When a user asks when something is due, call due_date with the number
