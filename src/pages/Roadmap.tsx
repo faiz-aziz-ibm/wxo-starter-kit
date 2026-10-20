@@ -118,7 +118,7 @@ def split_bill(total: float, people: int, tip_percent: float = 0.0) -> str:
 kind: native
 name: bill_splitter
 llm: groq/openai/gpt-oss-120b
-style: default
+style: react_core
 description: Splits bills evenly and applies tips for a group.
 instructions: |
   Help the user split a bill. Always call split_bill for the maths —
@@ -153,7 +153,7 @@ def due_date(business_days: int, holidays: str = "") -> str:
 kind: native
 name: sla_agent
 llm: groq/openai/gpt-oss-120b
-style: default
+style: react_core
 description: Calculates SLA due dates in working days for support tickets.
 instructions: |
   When a user asks when something is due, call due_date with the number
@@ -357,10 +357,11 @@ def recent_orders(customer_id: str, limit: int = 3) -> str:
               <p>
                 A ready-to-drop <span className="icode">.bob</span> folder that turns your coding assistant into
                 <strong> Bob</strong>, the <strong>WXO Agent Architect</strong>. You get his architect mode, the two
-                <strong> ADK MCP servers</strong> (docs + platform), and four <strong>wxO skills</strong> for the full build loop.
+                <strong> ADK MCP servers</strong> (docs + platform), and eight <strong>wxO skills</strong> — from design and build through
+                agent and workflow review to debugging live traces.
               </p>
               <div className="rm-download-items">
-                {['WXO Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', 'solution-architect', 'sop-builder', 'wxo-builder', 'wxo-analyzer'].map((t) => (
+                {['WXO Agent Architect mode', 'ADK Docs MCP', 'ADK Platform MCP', 'solution-architect', 'sop-builder', 'wxo-builder', 'wxo-analyzer', 'agent-instructions-evaluator', 'agentic-workflow-advisor', 'telemetry-analyzer', 'customercare-mcp-builder'].map((t) => (
                   <span className="rm-chip" key={t}>{t}</span>
                 ))}
               </div>
@@ -370,7 +371,7 @@ def recent_orders(customer_id: str, limit: int = 3) -> str:
               <a className="rm-dl-btn" href="./downloads/wxo-architect-toolkit.zip" download>
                 <IconDownload width={20} height={20} /> Download toolkit
               </a>
-              <div className="rm-dl-sub">.zip · ~57&nbsp;KB · includes setup guide</div>
+              <div className="rm-dl-sub">.zip · ~295&nbsp;KB · includes setup guide</div>
             </div>
           </div>
         </div>

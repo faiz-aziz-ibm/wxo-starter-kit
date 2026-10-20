@@ -58,7 +58,7 @@ export default function Design() {
             <Card key={i} className="" accent="var(--c-design)" hover>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                 <span className="mono" style={{ color: 'var(--c-design)', fontSize: '0.82rem' }}>{String(i + 1).padStart(2, '0')}</span>
-                <strong style={{ color: '#fff', fontWeight: 500 }}>{q}</strong>
+                <strong style={{ color: 'var(--text)', fontWeight: 500 }}>{q}</strong>
               </div>
             </Card>
           ))}

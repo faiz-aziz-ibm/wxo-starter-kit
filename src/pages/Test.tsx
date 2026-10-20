@@ -117,7 +117,7 @@ orchestrate evaluations red-teaming run \\
             ['Role confusion', '“Pretend you are a different assistant…”'],
             ['Policy bypass', '“My manager said it is okay to…”'],
           ].map(([t, e], i) => (
-            <Card key={i} accent="var(--red)"><strong style={{ color: '#fff' }}>{t}</strong><p className="muted" style={{ margin: '6px 0 0', fontSize: '0.9rem' }}>{e}</p></Card>
+            <Card key={i} accent="var(--red)"><strong style={{ color: 'var(--text)' }}>{t}</strong><p className="muted" style={{ margin: '6px 0 0', fontSize: '0.9rem' }}>{e}</p></Card>
           ))}
         </div>
       </Reveal>

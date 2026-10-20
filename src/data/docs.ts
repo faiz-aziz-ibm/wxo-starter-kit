@@ -6,6 +6,10 @@ export const doc = {
   // Agents
   buildAgent: `${BASE}/agents/build_agent`,
   agentStyles: `${BASE}/agents/agent_styles`,
+  agentStylesMigration: `${BASE}/agents/agent_styles_migration`,
+  // Agent skills (scoped, loadable instruction sets with SKILL.md)
+  agentSkills: `${BASE}/agent_skills/overview`,
+  agentSkillsManage: `${BASE}/agent_skills/manage_skills`,
   connectAgent: `${BASE}/agents/connect_agent`,
   importAgent: `${BASE}/agents/import_agent`,
   descriptions: `${BASE}/agents/descriptions`,

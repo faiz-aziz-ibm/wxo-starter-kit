@@ -31,21 +31,21 @@ export default function AntiPatterns() {
             <Reveal key={ap.n} delay={ap.n * 40}>
               <div id={`ap-${ap.n}`} style={{ scrollMarginTop: 'calc(var(--nav-h) + 20px)' }} />
               <div className="card" style={{ ['--accent' as string]: 'var(--red)', padding: 0, overflow: 'hidden' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 24px', borderBottom: '1px solid var(--line-soft)', background: 'rgba(250,77,86,0.05)' }}>
-                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 11, display: 'grid', placeItems: 'center', background: 'rgba(250,77,86,0.14)', color: 'var(--red)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 24px', borderBottom: '1px solid var(--line-soft)', background: 'color-mix(in srgb, var(--red) 5%, var(--bg))' }}>
+                  <span style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 11, display: 'grid', placeItems: 'center', background: 'color-mix(in srgb, var(--red) 12%, var(--bg))', color: 'var(--red)' }}>
                     <IconAlert width={20} height={20} />
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                       <span className="mono" style={{ color: 'var(--red)', fontSize: '0.8rem' }}>#{ap.n}</span>
-                      <strong style={{ color: '#fff', fontSize: '1.12rem' }}>{ap.title}</strong>
+                      <strong style={{ color: 'var(--text)', fontSize: '1.12rem' }}>{ap.title}</strong>
                       <Pill tone="red">{ap.tag}</Pill>
                     </div>
                   </div>
                 </div>
                 <div style={{ padding: '18px 24px' }}>
                   <p className="muted" style={{ margin: '0 0 14px', fontSize: '0.94rem', lineHeight: 1.6 }}>
-                    <strong style={{ color: 'var(--amber)' }}>Why it fails · </strong>{ap.why}
+                    <strong style={{ color: 'var(--red)' }}>Why it fails · </strong>{ap.why}
                   </p>
                   <p style={{ margin: 0, fontSize: '0.94rem', lineHeight: 1.6, color: 'var(--text-1)', display: 'flex', gap: 10 }}>
                     <span style={{ flexShrink: 0, color: 'var(--green)', marginTop: 2 }}><IconCheck width={17} height={17} /></span>

@@ -174,7 +174,7 @@ export default function Foundations() {
               <div style={{ display: 'flex', gap: 12, alignItems: 'baseline' }}>
                 <span className="mono" style={{ color: 'var(--c-foundations)', fontSize: '0.8rem' }}>{String(i + 1).padStart(2, '0')}</span>
                 <div>
-                  <strong style={{ color: '#fff' }}>{t}</strong>
+                  <strong style={{ color: 'var(--text)' }}>{t}</strong>
                   <div className="muted" style={{ fontSize: '0.88rem', marginTop: 2 }}>{d}</div>
                 </div>
               </div>

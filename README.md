@@ -65,8 +65,10 @@ Then set **Settings → Pages → Source → Deploy from a branch → `gh-pages`
 
 `public/downloads/wxo-architect-toolkit.zip` ships with the site (linked from the **Roadmap** and **MCP** pages).
 It contains a ready-to-drop `.bob` folder: the *WXO Agent Architect* mode, both ADK MCP servers (docs + platform)
-pre-wired in `mcp.json`, and four wxO skills (`solution-architect`, `sop-builder`, `wxo-builder`, `wxo-analyzer`),
-plus a setup guide. To refresh it, re-zip the source `.bob` into that path.
+pre-wired in `mcp.json`, and eight wxO skills (`solution-architect`, `sop-builder`, `wxo-builder`, `wxo-analyzer`,
+`agent-instructions-evaluator`, `agentic-workflow-advisor`, `telemetry-analyzer`, `customercare-mcp-builder`),
+plus a setup guide. Its source lives in [`toolkit/wxo-architect-toolkit/`](toolkit/wxo-architect-toolkit) — edit it there,
+then run `npm run toolkit` to rebuild the zip. (The repo-root `.bob/` is a separate, git-ignored local folder.)
 
 ## Cross-references
 

@@ -78,6 +78,13 @@ orchestrate tools import -k flow -f flow.py      # Workflow tool
 orchestrate knowledge-bases import -f kb.yaml
 orchestrate knowledge-bases remove --name mykb   # Remove (NOT "delete")
 
+# -- AGENT SKILLS ------------------------------------------
+orchestrate skills import --dir skills/my-skill/        # Import one skill dir
+orchestrate skills import --dir skills/ --recursive --upsert  # Bulk (CI pattern)
+orchestrate skills list                                 # List registered skills
+orchestrate skills get --skill-name my-skill            # Inspect (full body)
+orchestrate skills remove --skill-name my-skill         # Remove
+
 # -- CONNECTIONS -------------------------------------------
 orchestrate connections add -a myconn                              # 1. register
 orchestrate connections configure -a myconn --env draft --type team --kind bearer  # 2. auth type
@@ -103,13 +110,15 @@ orchestrate env activate <env-name>                  # Authenticate (re-run ever
 kind: native                    # native | external | assistant
 name: my_agent                  # Unique name (snake_case)
 llm: groq/openai/gpt-oss-120b   # a common wxO model
-style: default                  # default | react | react_intrinsic
+style: react_core               # current + recommended (default/react deprecated)
 description: |                   # Used by supervisor for routing
   Brief description for routing.
-instructions: |                 # Behaviour rules (the agent reads this)
+instructions: |                 # Always-on behaviour (the agent reads this)
   Your persona, rules, and guidance.
 tools:
   - my_tool_1
+skills:                         # Scoped instruction sets, loaded on demand
+  - my_skill_1
 collaborators:                  # Other agents to delegate to
   - specialist_agent_1
 knowledge_base:
