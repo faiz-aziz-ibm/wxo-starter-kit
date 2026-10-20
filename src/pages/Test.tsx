@@ -1,6 +1,6 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
-import { Reveal, Callout, DataTable, Card, Cite } from '../components/Primitives'
+import { Reveal, Callout, DataTable, Card, Cite, XRef } from '../components/Primitives'
 import { CodeBlock } from '../components/CodeBlock'
 import { Quiz } from '../components/Quiz'
 import { testQuiz } from '../data/quizzes'
@@ -120,6 +120,26 @@ orchestrate evaluations red-teaming run \\
             <Card key={i} accent="var(--red)"><strong style={{ color: 'var(--text)' }}>{t}</strong><p className="muted" style={{ margin: '6px 0 0', fontSize: '0.9rem' }}>{e}</p></Card>
           ))}
         </div>
+        <h4>From finding to fix</h4>
+        <p className="prose">
+          Red-teaming tells you <em>where</em> the agent breaks. Rewording the prompt rarely holds: the next attacker phrases it
+          differently. Durable fixes are <strong>enforced</strong> in a guardrail that runs on every turn.
+        </p>
+        <DataTable
+          first="strong"
+          head={['Finding', 'Durable fix', 'Hook']}
+          rows={[
+            ['Prompt injection', 'Content Guardrails control with jailbreak detection, or a pre-invoke plug-in for your known patterns', 'agent pre-invoke'],
+            ['Data leakage', 'PII Filter control, or a post-invoke plug-in that masks what must never leave', 'agent post-invoke'],
+            ['Role confusion', 'Jailbreak detection (control) plus clear role instructions. Instructions help, but don\u2019t enforce', 'agent pre-invoke'],
+            ['Policy bypass', 'A pre-invoke plug-in that checks the user\u2019s real entitlements; never trust claims in the text', 'agent pre-invoke'],
+          ]}
+        />
+        <Callout kind="tip" title="Close the loop">
+          After adding a guardrail, re-run the <strong>same</strong> red-team plan. The attack that got through should now be blocked,
+          and your evaluation scores shouldn't drop: an over-eager guardrail that blocks real users is a regression too. See
+          <XRef to="/build#guardrails">Build · Guardrails</XRef>.
+        </Callout>
       </Reveal>
 
       <Reveal as="section" className="reveal">

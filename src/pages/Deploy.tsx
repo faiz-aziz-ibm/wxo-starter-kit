@@ -103,6 +103,27 @@ orchestrate agents export --name hr_assistant -o hr_assistant.zip
 
 # Import to target environment
 orchestrate agents import -f hr_assistant.zip`} />
+        <h4>Promote the guardrails with the agent</h4>
+        <p className="prose">
+          A guardrail that exists in Draft but not Live is a production incident waiting to happen. Treat guardrails as code:
+          plug-ins are tools, so import them <strong>before</strong> the agents that reference them; controls export to YAML, so
+          version them next to the agent. <Cite href={doc.controls} />
+        </p>
+        <CodeBlock lang="bash" title="Release order in the target environment" code={`# 1. Plug-ins (they're Python tools) before the agents that list them
+orchestrate tools import -k python -f plugins/injection_guard.py
+orchestrate tools import -k python -f plugins/email_masking_plugin.py
+
+# 2. Agents
+orchestrate agents import -f hr_assistant.agent.yaml
+
+# 3. Controls (ADK 2.15+, if enabled), bound by agent name
+orchestrate controls import --file controls/content_safety.yaml
+orchestrate controls list --agent hr_assistant      # verify the binding landed`} />
+        <Callout kind="critical" title="Controls bind by name">
+          A control's <span className="icode">agent_names</span> must match the agent's name in the <em>target</em> environment.
+          Never patch Live with <span className="icode">controls update --agent</span>: it <strong>replaces</strong> the whole
+          binding list. Re-import the versioned YAML instead.
+        </Callout>
         <Callout kind="warning" title="Works in Draft, fails in Live?">
           The classic cause is environment drift: Draft has different tools/agents than Live, or connections are configured for Draft
           but not Live. Run <span className="icode">orchestrate connections list</span> in both, and confirm tool imports landed in the

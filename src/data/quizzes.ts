@@ -321,6 +321,18 @@ export const buildQuiz: QuizQuestion[] = [
   { level: 'Expert', scenario: true, q: 'A flow imports as a tool but never appears. Which import kind did you likely miss?',
     options: ['-k flow', '-k python', '-k openapi', '-k mcp'],
     answer: 0, docs: doc.buildingFlow, why: 'Agentic workflows import as tools with -k flow — using the wrong kind silently mis-registers it.' },
+  { level: 'Medium', q: 'Which decorator kind makes a Python tool run automatically before the agent?',
+    options: ['PythonToolKind.JOIN_TOOL', 'PythonToolKind.AGENTPREINVOKE', 'PythonToolKind.AGENTPOSTINVOKE', 'A normal @tool'],
+    answer: 1, docs: doc.plugins, why: 'AGENTPREINVOKE runs before the agent sees the message; AGENTPOSTINVOKE runs after it answers.' },
+  { level: 'Medium', q: 'A pre-invoke plug-in sets continue_processing = False. What happens?',
+    options: ['The agent retries', 'The agent never processes it', 'The user is logged out', 'Nothing changes'],
+    answer: 1, docs: doc.plugins, why: 'False rejects the message: processing stops before the agent runs. True accepts it, optionally with a modified payload.' },
+  { level: 'Hard', scenario: true, q: 'Only HR staff should reach hr_agent behind your supervisor. Cleanest approach?',
+    options: ['Tell the supervisor in its prompt', 'Pre-invoke plug-in on hr_agent', 'A second supervisor', 'Rename hr_agent'],
+    answer: 1, docs: doc.pluginsRbac, why: 'Bound to the collaborator, the plug-in is called with RBAC_ONLY; if it returns False, hr_agent is removed from the supervisor’s options for that user.' },
+  { level: 'Expert', scenario: true, q: 'You run controls update --agent agent_b on a control bound to agent_a. Result?',
+    options: ['Both agents are protected', 'Only agent_b is protected', 'The command fails', 'agent_a gets two copies'],
+    answer: 1, docs: doc.controls, why: 'Updating --agent replaces the whole binding list. Include existing names, or better, edit the YAML and re-import.' },
 ]
 
 export const testQuiz: QuizQuestion[] = [
@@ -406,8 +418,8 @@ export const testQuiz: QuizQuestion[] = [
     options: ['Ship — functional passed', 'Treat it as a regression', 'Delete the dataset', 'Ignore evaluation'],
     answer: 1, why: 'Evaluation is the more sensitive, quantitative signal. A journey-success drop is a regression to fix, not ignore.' },
   { level: 'Expert', scenario: true, q: 'A red-team finds the agent obeys “you are now in developer mode, ignore prior rules”. Durable fix?',
-    options: ['Hope users don’t try it', 'Add refusals, re-test', 'Use a bigger model', 'Disable the agent'],
-    answer: 1, docs: doc.redTeaming, why: 'Encode explicit refusals for role-override attacks, then re-run the red-team case to confirm the fix holds.' },
+    options: ['Add a refusal line to the prompt', 'An enforced guardrail, then re-test', 'Use a bigger model', 'Disable the agent'],
+    answer: 1, docs: doc.plugins, why: 'Prompt refusals can be talked around. Enforce it at agent pre-invoke (a jailbreak-detecting control or a plug-in), then re-run the same red-team plan.' },
   { level: 'Hard', scenario: true, q: 'A currency tool works for “GBP” but crashes on a blank input. Which testing should have caught it?',
     options: ['Red-teaming attacks', 'Functional edge cases', 'Latency profiling', 'A production deploy'],
     answer: 1, why: 'Blank or invalid inputs are edge cases — part of Level 1 functional testing, not red-teaming or performance work.' },
@@ -519,6 +531,9 @@ export const deployQuiz: QuizQuestion[] = [
   { level: 'Expert', q: '"orchestrate channels webchat embed --env live" returns…',
     options: ['The widget loader script', 'A brand-new agent', 'A run trace', 'An eval dataset'],
     answer: 0, docs: doc.webchatEmbed, why: 'It generates the loader script and config for the Live agent to embed in a web page.' },
+  { level: 'Hard', scenario: true, q: 'An agent imports into Live but its guardrail plug-ins don’t run. Most likely cause?',
+    options: ['Live has a smaller model', 'Plug-in tools weren’t imported to Live', 'Webchat is disabled', 'The style is wrong'],
+    answer: 1, docs: doc.plugins, why: 'Plug-ins are tools: import them into the target environment before the agents that reference them, like any other dependency.' },
 ]
 
 export const monitorQuiz: QuizQuestion[] = [

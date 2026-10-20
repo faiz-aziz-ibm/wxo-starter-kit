@@ -341,3 +341,36 @@ export function Verdict({ yes, children }: { yes?: boolean; children: ReactNode 
     </span>
   )
 }
+
+/* ---- Hook timeline: one agent turn, left to right. Gates mark the hooks
+   where plug-ins and controls run; a packet walks the turn and each gate
+   lights as it passes. ---- */
+export type HookItem =
+  | { kind: 'stage'; title: string; sub?: string }
+  | { kind: 'gate'; scope: string; hook: string; who: 'both' | 'control' }
+export function HookTimeline({ items }: { items: HookItem[] }) {
+  const n = items.length
+  const dur = 7 // seconds per pass
+  return (
+    <div className="hk" style={{ ['--hk-dur' as string]: `${dur}s` }} role="list" aria-label="Where plug-ins and controls run during one agent turn">
+      <div className="hk-track" aria-hidden><span className="hk-packet" /></div>
+      {items.map((it, i) => {
+        const delay = `${((i + 0.5) / n) * dur}s`
+        return it.kind === 'stage' ? (
+          <div key={i} className="hk-item hk-stage" role="listitem">
+            <span className="hk-dot" style={{ animationDelay: delay }} />
+            <div className="hk-title">{it.title}</div>
+            {it.sub && <div className="hk-sub">{it.sub}</div>}
+          </div>
+        ) : (
+          <div key={i} className={`hk-item hk-gate ${it.who}`} role="listitem">
+            <span className="hk-diamond" style={{ animationDelay: delay }} />
+            <div className="hk-scope">{it.scope}</div>
+            <div className="hk-hook">{it.hook}</div>
+            <div className="hk-who">{it.who === 'both' ? 'Plug-in · Control' : 'Control'}</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}

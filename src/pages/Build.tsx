@@ -1,7 +1,8 @@
 import { allPhases } from '../data/phases'
 import { PhaseShell } from '../components/PhaseHero'
 import { Reveal, Callout, DataTable, DoDont, Pill, Stat, XRef, Cite } from '../components/Primitives'
-import { DecisionFlow, FlowRow } from '../components/Diagrams'
+import { DecisionFlow, FlowRow, HookTimeline } from '../components/Diagrams'
+import { CodeTabs } from '../components/CodeTabs'
 import { Quiz } from '../components/Quiz'
 import { buildQuiz } from '../data/quizzes'
 import { doc } from '../data/docs'
@@ -24,6 +25,8 @@ const toc = [
   { id: 'skills', label: 'Agent skills' },
   { id: 'multi', label: 'Multi-agent systems' },
   { id: 'context', label: 'Context window' },
+  { id: 'guardrails', label: 'Guardrails (plug-ins)' },
+  { id: 'controls', label: 'Controls · advanced' },
   { id: 'check', label: 'Knowledge check' },
 ]
 
@@ -513,8 +516,9 @@ skills:
         </Callout>
         <h4>Prompt instruction, skill, tool, or workflow?</h4>
         <p className="prose">
-          These four are easy to confuse. The distinction: <strong>instructions</strong> are always-on behaviour; a <strong>skill</strong>
-          is a procedure loaded on demand; a <strong>tool</strong> performs an action; a <strong>workflow</strong> enforces a sequence.
+          These are easy to confuse. The distinction: <strong>instructions</strong> are always-on guidance; a <strong>skill</strong>
+          is a procedure loaded on demand; a <strong>tool</strong> performs an action; a <strong>workflow</strong> enforces a sequence;
+          a <strong>plug-in</strong> enforces a rule.
           Walk down and stop at the first <span className="icode">Yes</span>.
         </p>
         <DecisionFlow accent="var(--c-build)" steps={[
@@ -526,7 +530,11 @@ skills:
             { label: 'YES', to: 'An agentic workflow — it guarantees the sequence.', tone: 'stop' },
             { label: 'NO', to: 'Continue', tone: 'go' },
           ] },
-          { q: 'Should this guidance apply to every request (persona, tone, global rules, safety)?', branches: [
+          { q: 'Must it be enforced, not just encouraged: block, mask, or authorise?', branches: [
+            { label: 'YES', to: 'A plug-in or control: prompts can be talked around. See Guardrails below.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Should this guidance apply to every request (persona, tone, global conventions)?', branches: [
             { label: 'YES', to: 'Agent instructions — always-on behaviour belongs in the prompt.', tone: 'stop' },
             { label: 'NO', to: 'Continue — it’s situational', tone: 'go' },
           ] },
@@ -540,7 +548,7 @@ skills:
           head={['Signal', 'Prompt instruction', 'Agent skill']}
           rows={[
             ['When it loads', 'Every turn, always in context', 'On demand, only when the description matches'],
-            ['Scope', 'Global behaviour, persona, safety rules', 'One specific procedure or task'],
+            ['Scope', 'Global behaviour, persona, tone', 'One specific procedure or task'],
             ['Context cost', 'Pays on every request', 'Near-zero until activated'],
             ['Reuse', 'Copied between agents by hand', 'Imported once, attached to many agents'],
             ['Best when', 'A handful of short, always-true rules', 'Many procedures, or any one that is long or reused'],
@@ -601,6 +609,11 @@ This agent CANNOT: [explicit out-of-scope items].`} />
           <Stat value="8–12" label="Noticeable degradation" accent="var(--amber)" />
           <Stat value="13+" label="Unpredictable — don’t" accent="var(--red)" />
         </div>
+        <Callout kind="note" title="Not every user should reach every specialist">
+          Descriptions decide where the supervisor <em>can</em> route; they don't decide who is <em>allowed</em>. Bind a pre-invoke
+          plug-in to a specialist and wxO removes it from the supervisor's options for users who fail the check.
+          See <XRef to="/build#rbac">collaborator access control</XRef>.
+        </Callout>
         <Callout kind="tip" title="Test your descriptions without code">
           Paste your Supervisor’s instructions and all collaborator descriptions into a plain LLM chat (no tools), describe a user
           request, and ask which agent it would route to and why. Routing logic becomes visible — you spot gaps without running anything.
@@ -658,6 +671,308 @@ def get_customer_orders(customer_id: str, limit: int = 5) -> str:
         <Callout kind="warning" title="The 80% rule">
           If your expected conversation plus tools will consume more than <strong>80%</strong> of the model’s context window, you will
           have reliability problems. Trim your data, shorten instructions, or reduce history retention.
+        </Callout>
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="guardrails" />
+        <h3>Guardrails with plug-ins</h3>
+        <p className="prose">
+          Instructions <em>ask</em> the agent to behave. A guardrail <em>makes</em> it. If a rule must hold every time (block an
+          unsafe request, mask an email address, check who is allowed in), don't leave it to the prompt, because a determined user
+          can talk an LLM out of almost anything. Put it in a <strong>plug-in</strong>: a small Python tool that wxO runs
+          automatically on every turn, before or after the agent. <Cite href={doc.plugins} />
+        </p>
+        <Callout kind="key" title="Where guardrails run in a single turn">
+          Plug-ins run at the two <strong>agent</strong> hooks. Controls (the advanced, policy-based option at the end of this page)
+          can also run at the <strong>tool</strong> hooks, and at two prompt-fetch hooks not shown here.
+        </Callout>
+        <HookTimeline items={[
+          { kind: 'stage', title: 'User message', sub: 'arrives' },
+          { kind: 'gate', scope: 'agent', hook: 'pre-invoke', who: 'both' },
+          { kind: 'stage', title: 'Agent reasons', sub: 'picks a tool' },
+          { kind: 'gate', scope: 'tool', hook: 'pre-invoke', who: 'control' },
+          { kind: 'stage', title: 'Tool runs', sub: 'calls a system' },
+          { kind: 'gate', scope: 'tool', hook: 'post-invoke', who: 'control' },
+          { kind: 'gate', scope: 'agent', hook: 'post-invoke', who: 'both' },
+          { kind: 'stage', title: 'Reply', sub: 'to the user' },
+        ]} />
+        <h4>What a plug-in can do</h4>
+        <p className="prose">
+          A plug-in receives the <strong>context</strong> (user, tenant, request) and a <strong>payload</strong> (the messages), and
+          returns a result. Two fields decide what happens next:
+        </p>
+        <DataTable
+          first="strong"
+          head={['Outcome', 'continue_processing', 'modified_payload', 'Use it to…']}
+          rows={[
+            ['Accept', <Pill tone="green">True</Pill>, 'unchanged', 'Let a clean message through'],
+            ['Rewrite', <Pill tone="green">True</Pill>, 'edited messages', 'Mask PII, strip profanity, normalise input'],
+            ['Reject', <Pill tone="red">False</Pill>, 'optional notice', 'Stop unsafe or unauthorised requests'],
+          ]}
+        />
+        <p className="prose">
+          The decorator's <span className="icode">kind</span> sets the phase: <span className="icode">PythonToolKind.AGENTPREINVOKE</span> runs
+          before the agent sees the message, <span className="icode">PythonToolKind.AGENTPOSTINVOKE</span> runs after it answers.
+        </p>
+        <CodeTabs tabs={[
+          { label: 'Pre-invoke · input guard', lang: 'python', title: 'plugins/injection_guard.py', code: `from ibm_watsonx_orchestrate.agent_builder.tools import tool
+from ibm_watsonx_orchestrate.agent_builder.tools.types import (
+    PythonToolKind, PluginContext, AgentPreInvokePayload, AgentPreInvokeResult,
+)
+
+BLOCKED = ["ignore your instructions", "developer mode"]   # demo list only
+
+@tool(description="Blocks known prompt-injection phrases", kind=PythonToolKind.AGENTPREINVOKE)
+def injection_guard(plugin_context: PluginContext,
+                    agent_pre_invoke_payload: AgentPreInvokePayload) -> AgentPreInvokeResult:
+    result = AgentPreInvokeResult(modified_payload=agent_pre_invoke_payload)
+    if not agent_pre_invoke_payload or not agent_pre_invoke_payload.messages:
+        result.continue_processing = True
+        return result
+
+    text = agent_pre_invoke_payload.messages[-1].content.text or ""
+    if any(p in text.lower() for p in BLOCKED):
+        result.continue_processing = False          # reject: the agent never processes it
+        result.modified_payload.messages[-1].content.text = "Request blocked by policy."
+    else:
+        result.continue_processing = True           # accept
+    return result` },
+          { label: 'Post-invoke · output masking', lang: 'python', title: 'plugins/email_masking_plugin.py', code: `import re
+from ibm_watsonx_orchestrate.agent_builder.tools import tool
+from ibm_watsonx_orchestrate.agent_builder.tools.types import (
+    PythonToolKind, PluginContext, AgentPostInvokePayload, AgentPostInvokeResult,
+    TextContent, Message,
+)
+
+EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}")
+
+def _mask(m: re.Match) -> str:
+    local, domain = m.group(0).split("@", 1)
+    keep = min(2, max(0, len(local) - 2))      # always mask at least 2 chars
+    return local[:keep] + "*" * (len(local) - keep) + "@" + domain
+
+@tool(description="Masks email addresses in the agent's reply", kind=PythonToolKind.AGENTPOSTINVOKE)
+def email_masking_plugin(plugin_context: PluginContext,
+                         agent_post_invoke_payload: AgentPostInvokePayload) -> AgentPostInvokeResult:
+    result = AgentPostInvokeResult()
+    msgs = agent_post_invoke_payload.messages if agent_post_invoke_payload else None
+    if not msgs or getattr(msgs[0].content, "text", None) is None:
+        result.continue_processing = False           # nothing safe to return: fail closed
+        return result
+
+    first = msgs[0]
+    payload = agent_post_invoke_payload.copy(deep=True)
+    payload.messages[0] = Message(
+        role=first.role,
+        content=TextContent(type="text", text=EMAIL.sub(_mask, first.content.text)),
+    )
+    result.continue_processing = True
+    result.modified_payload = payload
+    return result` },
+          { label: 'Attach to the agent', lang: 'yaml', title: 'email_agent.agent.yaml', code: `spec_version: v1
+kind: native
+name: email_agent
+llm: groq/openai/gpt-oss-120b
+style: react_core
+description: Sends emails on the user's behalf.
+tools:
+  - send_email_tool          # the agent chooses when to call this
+plugins:                     # these run automatically, every turn
+  agent_pre_invoke:
+    - plugin_name: injection_guard
+  agent_post_invoke:
+    - plugin_name: email_masking_plugin` },
+        ]} />
+        <CodeBlock lang="bash" title="Import the plug-ins first, then the agent" code={`orchestrate tools import -k python -f plugins/injection_guard.py
+orchestrate tools import -k python -f plugins/email_masking_plugin.py
+orchestrate agents import -f email_agent.agent.yaml`} />
+        <Callout kind="warning" title="A keyword list is a demo, not a defence">
+          Phrase matching catches the obvious and misses the creative. Use plug-ins for <strong>your</strong> rules (business policy,
+          entitlements, house masking formats). For broad jailbreak and toxicity detection, use the IBM-maintained
+          <XRef to="/build#controls">Content Guardrails control</XRef>.
+        </Callout>
+        <Callout kind="note" title="Post-invoke edits carry forward">
+          The next turn sees the conversation <em>as the plug-in left it</em>. Once an email is masked in a reply, the agent
+          won't see the original address again either.
+        </Callout>
+
+        <div id="rbac" />
+        <h4>Collaborator access control</h4>
+        <p className="prose">
+          In a multi-agent system, not every user should reach every specialist. Bind a pre-invoke plug-in to the
+          <strong> collaborator</strong> agent. When the supervisor starts a turn, wxO calls it with the action
+          <span className="icode"> RBAC_ONLY</span>. If it returns <span className="icode">False</span>, that specialist is
+          removed from the supervisor's list for this user, so the supervisor can't route there at all. <Cite href={doc.pluginsRbac} />
+        </p>
+        <DataTable
+          first="strong"
+          head={['plugin_context.metadata["action"]', 'When', 'What to do']}
+          rows={[
+            [<span className="icode">ALL</span>, 'Every message to the root agent', 'Run your full logic'],
+            [<span className="icode">RBAC_ONLY</span>, 'A parent agent is checking access to this collaborator', 'Check entitlements; return the answer'],
+            [<span className="icode">SKIP_RBAC</span>, 'Access was already checked on this thread (cached)', 'Continue unchanged; don’t re-check'],
+          ]}
+        />
+        <CodeBlock lang="python" title="plugins/hr_access_plugin.py, bound to hr_agent" code={`from ibm_watsonx_orchestrate.agent_builder.tools import tool
+from ibm_watsonx_orchestrate.agent_builder.tools.types import (
+    PythonToolKind, PluginContext, AgentPreInvokePayload, AgentPreInvokeResult,
+    AgentPreInvokeType,
+)
+
+@tool(description="Only HR staff can reach the HR agent", kind=PythonToolKind.AGENTPREINVOKE)
+def hr_access_plugin(plugin_context: PluginContext,
+                     agent_pre_invoke_payload: AgentPreInvokePayload) -> AgentPreInvokeResult:
+    result = AgentPreInvokeResult(modified_payload=agent_pre_invoke_payload)
+    action = plugin_context.metadata["action"]
+
+    if action == AgentPreInvokeType.RBAC_ONLY.value:
+        result.continue_processing = check_access(plugin_context)   # your IdP / entitlement lookup
+        return result
+
+    result.continue_processing = True    # ALL or SKIP_RBAC: let the message through
+    return result`} />
+        <Callout kind="tip" title="Check once per thread">
+          Entitlement lookups hit your identity provider, so branch on the action and only call it for
+          <span className="icode"> RBAC_ONLY</span>. wxO caches the result and sends <span className="icode">SKIP_RBAC</span> for
+          the rest of the thread. Import <span className="icode">AgentPreInvokeType</span> from
+          <span className="icode"> ibm_watsonx_orchestrate.agent_builder.tools.types</span> with the other plug-in types. It is not
+          exported from the package root.
+        </Callout>
+
+        <h4>Plug-ins as a hosted service (OpenAPI)</h4>
+        <p className="prose">
+          Already have a guardrail or masking service, or want one policy across many agents and tenants? Implement the plug-in
+          as an HTTP endpoint in any language and describe it with OpenAPI. It runs at the same two hooks and returns the same
+          <span className="icode"> continue_processing</span> / <span className="icode">modified_payload</span>. <Cite href={doc.openapiPlugin} />
+        </p>
+        <CodeBlock lang="yaml" title="guardrail-plugin.yaml (excerpt)" code={`paths:
+  /agent_pre_invoke:
+    post:
+      operationId: guardrail_pre
+      x-ibm-orchestrate-plugin:
+        hook: agent_pre_invoke        # must match the agent YAML section
+      requestBody:                    # wxO POSTs { payload, context }
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [payload, context]
+      responses:
+        "200":                        # you return { continue_processing, modified_payload? }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [continue_processing]`} />
+        <Callout kind="critical" title="OpenAPI plug-ins fail closed">
+          If the service errors, times out, or omits <span className="icode">continue_processing</span>, wxO
+          <strong> stops processing</strong> rather than letting unchecked content through. Size its timeouts and availability
+          like the production dependency it is. Its URL must also pass your tenant's outbound allowlist.
+        </Callout>
+        <p className="prose">
+          Python <strong>toolkit</strong> tools can be plug-ins too: reference them as
+          <span className="icode"> &lt;toolkit_name&gt;:&lt;plugin_name&gt;</span> under <span className="icode">plugins:</span>.
+        </p>
+
+        <h4>Where should this rule live?</h4>
+        <DecisionFlow steps={[
+          { q: 'Is it a standard policy: PII, hateful or harmful content, jailbreak detection?', branches: [
+            { label: 'YES', to: 'A control (advanced): IBM-maintained, no code. See the end of this page.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Is it a sensitive field moving through an agentic workflow?', branches: [
+            { label: 'YES', to: 'Flow masking: aflow.mask_property() on that property.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Must it hold every time: block, rewrite, mask, or authorise?', branches: [
+            { label: 'YES', to: 'A plug-in: pre-invoke for input and access, post-invoke for output.', tone: 'stop' },
+            { label: 'NO', to: 'Continue', tone: 'go' },
+          ] },
+          { q: 'Is it about tone, persona, or how the agent phrases things?', branches: [
+            { label: 'YES', to: 'Agent instructions: guidance, not enforcement.', tone: 'stop' },
+            { label: 'NO', to: 'When in doubt, enforce it in a plug-in.', tone: 'go' },
+          ] },
+        ]} />
+        <DoDont
+          dos={[
+            'Enforce safety and compliance in plug-ins or controls',
+            'Keep plug-ins fast: they run on every turn',
+            'Fail closed when the payload is missing or malformed',
+            'Re-run your red-team plan after adding a guardrail',
+          ]}
+          donts={[
+            'Rely on "never reveal X" in the prompt as your only defence',
+            'Call your identity provider on every message (use the RBAC actions)',
+            'Trust a user’s claim of permission ("my manager said it’s fine")',
+            'Put a plug-in under the wrong hook section (the agent import fails)',
+          ]}
+        />
+      </Reveal>
+
+      <Reveal as="section" className="reveal">
+        <div id="controls" />
+        <h3>Controls: policy guardrails without code <Pill tone="blue">Advanced</Pill></h3>
+        <p className="prose">
+          Controls attach an IBM-maintained <strong>policy</strong>, such as a PII filter or content guardrails, to agents, tools
+          and models, at whichever hooks you choose. There's no code to write or maintain: you pick the policy, configure it, and
+          bind it. <Cite href={doc.controls} />
+        </p>
+        <Callout kind="warning" title="Check you have it first">
+          Controls need <strong>ADK 2.15+</strong> and the controls feature <strong>enabled on your instance</strong> (ask your
+          administrator). If <span className="icode">orchestrate controls list-types</span> fails, it isn't on yet.
+        </Callout>
+        <DataTable
+          first="strong"
+          head={['', 'Plug-ins', 'Controls']}
+          rows={[
+            ['What you write', 'Python (or an OpenAPI service)', 'Configuration only'],
+            ['Policy logic', 'Yours: any business rule', 'IBM-maintained (PII, HAP, jailbreak…)'],
+            ['Hooks', 'agent pre / post-invoke', 'agent, tool and prompt-fetch (6 in total)'],
+            ['Binds to', 'One agent (in its YAML)', 'Agents, tools and models (many at once)'],
+            ['Version', 'ADK 2.1+', 'ADK 2.15+, enabled by an admin'],
+            ['Reach for it when', 'Custom rules, entitlements, house formats', 'Standard safety & PII coverage, org-wide'],
+          ]}
+        />
+        <p className="prose">
+          A control can bind to any of six hooks: the four agent and tool hooks in the timeline above, plus
+          <span className="icode"> prompt_pre_fetch</span> and <span className="icode">prompt_post_fetch</span>. The docs list the
+          prompt-fetch hooks but don't yet describe their behaviour, so test them in Draft before relying on them.
+        </p>
+        <CodeBlock lang="bash" title="Discover the policies your instance offers" code={`orchestrate controls list-types
+orchestrate controls get-type --name "PII Filter"`} />
+        <CodeBlock lang="yaml" title="controls/content_safety.yaml (versioned with your agent)" code={`spec_version: v1
+kind: control
+control:
+  artifact_name: Content Guardrails
+  name: content_safety
+  description: Blocks harmful content and jailbreaks around the HR assistant.
+  hooks:
+    - agent_pre_invoke         # screen the request
+    - agent_post_invoke        # screen the reply
+  priority: 100                # lower numbers run first
+  config:
+    enabled:
+      hap: true
+      harm: true
+      jailbreak: true
+      social_bias: true
+    block_message: Sorry, I can't help with that request.
+  agent_names:
+    - hr_assistant`} />
+        <CodeBlock lang="bash" title="Apply, inspect, version" code={`orchestrate controls import --file controls/content_safety.yaml
+orchestrate controls list --agent hr_assistant
+orchestrate controls get-details --name content_safety
+orchestrate controls export --name content_safety --output controls/content_safety.yaml`} />
+        <Callout kind="critical" title="Updating bindings replaces them">
+          <span className="icode">orchestrate controls update --agent …</span> <strong>replaces</strong> that control's whole
+          agent list (same for <span className="icode">--tool</span> and <span className="icode">--model</span>). Include the
+          existing names, or you'll silently remove protection from other agents. Prefer editing the YAML and re-importing.
+        </Callout>
+        <Callout kind="tip" title="Use both">
+          Controls give broad, maintained coverage; plug-ins add the rules only you know. A typical production agent runs a
+          Content Guardrails control plus a pre-invoke plug-in for entitlements and a post-invoke plug-in for house masking.
         </Callout>
       </Reveal>
 

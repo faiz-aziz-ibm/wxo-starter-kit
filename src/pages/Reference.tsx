@@ -24,9 +24,11 @@ const glossary: [string, string][] = [
   ['ADK', 'Agent Development Kit — the Python SDK and CLI for wxO'],
   ['A2A', 'Agent-to-Agent Protocol — a standard for inter-agent communication'],
   ['Agentic Drift', 'When an agent becomes incoherent mid-conversation due to context overload'],
+  ['Agent Skill', 'A scoped SKILL.md instruction set the agent loads only when a request matches its description'],
   ['Agentic Workflow', 'A deterministic workflow tool with branching, loops, and human-in-the-loop'],
   ['Chain of Thought', 'An LLM reasoning technique where the model explains its steps before acting'],
   ['Collaborator', 'An agent that another agent can delegate tasks to'],
+  ['Control', 'An IBM-maintained policy (e.g. PII Filter, Content Guardrails) bound to agents, tools or models at execution hooks (ADK 2.15+)'],
   ['Context Window', 'The working memory of an LLM — the maximum text it can process at once'],
   ['Draft', 'Development environment; not visible to end users'],
   ['Grounding', 'Connecting agent responses to real data via knowledge bases or tools'],
@@ -37,8 +39,11 @@ const glossary: [string, string][] = [
   ['MCP', 'Model Context Protocol — a standard way to expose tools to AI models'],
   ['Native Agent', 'An agent built and managed within wxO using the ADK'],
   ['OpenAPI', 'A standard format for describing REST APIs (YAML/JSON)'],
+  ['Plug-in', 'A tool wxO runs automatically before (pre-invoke) or after (post-invoke) the agent to accept, rewrite or reject a message'],
+  ['Pre-invoke / Post-invoke', 'The hooks either side of an agent turn where plug-ins and controls run'],
   ['RAG', 'Retrieval-Augmented Generation — searching documents before answering'],
   ['ReAct', 'Reason-Act-Observe — an agent reasoning pattern'],
+  ['ReAct Core', 'react_core — the recommended agent style; default and react are deprecated'],
   ['Supervisor Agent', 'A top-level agent that routes to specialist agents'],
   ['Tool', 'A function the agent can call to take actions or retrieve data'],
   ['Trace', 'A step-by-step log of an agent’s actions during one conversation'],
@@ -85,6 +90,14 @@ orchestrate skills list                                 # List registered skills
 orchestrate skills get --skill-name my-skill            # Inspect (full body)
 orchestrate skills remove --skill-name my-skill         # Remove
 
+# -- GUARDRAILS: PLUG-INS & CONTROLS -----------------------
+orchestrate tools import -k python -f plugins/guard.py  # A plug-in is a Python tool
+orchestrate controls list-types                         # Policies on your instance (2.15+)
+orchestrate controls import --file controls/safety.yaml # Bind a control from YAML
+orchestrate controls list --agent myagent               # What protects this agent?
+orchestrate controls count                              # Controls per asset type (2.19)
+orchestrate controls export --name safety --output controls/safety.yaml
+
 # -- CONNECTIONS -------------------------------------------
 orchestrate connections add -a myconn                              # 1. register
 orchestrate connections configure -a myconn --env draft --type team --kind bearer  # 2. auth type
@@ -123,6 +136,11 @@ collaborators:                  # Other agents to delegate to
   - specialist_agent_1
 knowledge_base:
   - my_knowledge_base
+plugins:                        # Guardrails that run every turn
+  agent_pre_invoke:             #   before the agent (input, access)
+    - plugin_name: my_input_guard
+  agent_post_invoke:            #   after the agent (output masking)
+    - plugin_name: my_output_mask
 memory_enabled: false           # true = remembers session history
 hide_reasoning: false           # true = hides thinking from user
 is_schedulable: false           # true = can be scheduled`} />
@@ -169,7 +187,7 @@ def my_tool(input_param: str, optional: int = 0) -> str:
           {[
             ['Functional', ['Happy path works end-to-end', 'Agent calls the correct tools', 'Asks for clarification when inputs missing', 'Declines out-of-scope gracefully', 'Multi-turn maintains context']],
             ['Edge case', ['Empty or null inputs handled', 'Very long inputs handled', 'Ambiguous queries trigger clarification', 'API/tool timeouts handled gracefully', 'Duplicate requests idempotent']],
-            ['Security', ['Prompt injection attempts fail', 'System prompt not exposed', 'Agent stays in its role', 'Credentials not echoed back']],
+            ['Security', ['Prompt injection attempts fail', 'System prompt not exposed', 'Agent stays in its role', 'Credentials not echoed back', 'Guardrails (plug-ins / controls) attached in Live']],
             ['Performance', ['Response time within budget', 'Consistent across repeated runs', 'No context overflow on long chats']],
           ].map(([title, items], i) => (
             <Card key={i} accent="var(--teal)">

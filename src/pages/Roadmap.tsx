@@ -75,14 +75,14 @@ const levels: Level[] = [
   },
   {
     n: 6, tier: 'Ship', title: 'Test, deploy & watch', time: '~2 days',
-    body: 'Prove it works with functional tests, an evaluation dataset and a red-teaming pass. Then deploy to a channel, and read the traces of real conversations to find the weak spots.',
-    learn: ['Three levels of testing', 'Channels & environments', 'Traces & debugging'],
-    links: [{ label: 'Test', to: '/test' }, { label: 'Deploy', to: '/deploy' }, { label: 'Monitor', to: '/monitor' }],
+    body: 'Prove it works with functional tests, an evaluation dataset and a red-teaming pass, and enforce anything that must always hold with a guardrail plug-in. Then deploy to a channel, and read the traces of real conversations to find the weak spots.',
+    learn: ['Three levels of testing', 'Guardrail plug-ins', 'Channels & environments', 'Traces & debugging'],
+    links: [{ label: 'Test', to: '/test' }, { label: 'Build · Guardrails', to: '/build#guardrails' }, { label: 'Deploy', to: '/deploy' }, { label: 'Monitor', to: '/monitor' }],
   },
   {
     n: 7, tier: 'Pro', title: 'Go Pro', time: 'ongoing',
-    body: 'Channels everywhere, your own MCP server on Code Engine, custom API-filtering tools, evals as a release gate, and red-teaming. Share tools across the org and let the Architect Toolkit build with you.',
-    learn: ['Channels', 'Own MCP server', 'Evals & red-teaming', 'CI/CD'],
+    body: 'Channels everywhere, your own MCP server on Code Engine, custom API-filtering tools, evals as a release gate, red-teaming, and org-wide policy controls. Share tools across the org and let the Architect Toolkit build with you.',
+    learn: ['Channels', 'Own MCP server', 'Evals & red-teaming', 'Controls', 'CI/CD'],
     links: [{ label: 'The Pro playbook', to: '/roadmap#pro-playbook' }, { label: 'MCP Servers', to: '/mcp' }],
   },
 ]
@@ -297,7 +297,7 @@ export default function Roadmap() {
             { icon: IconPlug, c: 'var(--c-mcp)', t: 'Build & host your own MCP server', d: 'Wrap your internal APIs as an MCP toolkit, containerise it, and run it on IBM Code Engine so every agent can reuse it.', to: '/mcp' },
             { icon: IconRoute, c: 'var(--teal)', t: 'Custom API-filtering tools', d: 'Don’t hand raw API JSON to the model. A Python tool calls the endpoint, filters to the fields that matter, and returns a tight summary.', to: '/build' },
             { icon: IconGauge, c: 'var(--c-test)', t: 'Evals as a release gate', d: 'Record real conversations, run the evaluation framework in CI, and block promotion when journey success drops.', to: '/test' },
-            { icon: IconShield, c: 'var(--red)', t: 'Red-team before you ship', d: 'Plan and run attack scenarios — prompt injection, data leakage, policy bypass — and fix what leaks.', to: '/test' },
+            { icon: IconShield, c: 'var(--red)', t: 'Red-team before you ship', d: 'Plan and run attack scenarios — prompt injection, data leakage, policy bypass — then close each hole with an enforced guardrail, not a prompt tweak.', to: '/test' },
             { icon: IconSpark, c: 'var(--green)', t: 'Let Bob build with you', d: 'Use the Architect Toolkit so your assistant scaffolds agents, tools and flows against the live ADK.', to: '/mcp' },
           ].map((p, i) => (
             <Reveal key={i} delay={i * 50}>

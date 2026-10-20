@@ -10,6 +10,12 @@ export const doc = {
   // Agent skills (scoped, loadable instruction sets with SKILL.md)
   agentSkills: `${BASE}/agent_skills/overview`,
   agentSkillsManage: `${BASE}/agent_skills/manage_skills`,
+  // Guardrails: plug-ins (ADK 2.1+) and controls (ADK 2.15+)
+  plugins: `${BASE}/plugins/plugins`,
+  pluginsRbac: `${BASE}/plugins/plugins#collaborator-access-control`,
+  openapiPlugin: `${BASE}/plugins/openapi_plugin`,
+  controls: `${BASE}/controls/managing_controls`,
+  flowMasking: `${BASE}/tools/flows/masking_sensitive_data`,
   connectAgent: `${BASE}/agents/connect_agent`,
   importAgent: `${BASE}/agents/import_agent`,
   descriptions: `${BASE}/agents/descriptions`,
