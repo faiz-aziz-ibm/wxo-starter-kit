@@ -113,10 +113,10 @@ orchestrate observability traces search \\
             <Card key={i} accent="var(--c-monitor)">
               <div style={{ display: 'flex', gap: 12, alignItems: 'baseline' }}>
                 <span className="mono" style={{ color: 'var(--c-monitor)', fontSize: '0.8rem' }}>{String(i + 1).padStart(2, '0')}</span>
-                <strong style={{ color: '#fff', fontSize: '1.02rem' }}>{sy.s}</strong>
+                <strong style={{ color: 'var(--text)', fontSize: '1.02rem' }}>{sy.s}</strong>
               </div>
               <div style={{ marginTop: 12, paddingLeft: 26 }}>
-                <p className="muted" style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: 'var(--amber)' }}>Likely cause · </strong>{sy.c}</p>
+                <p className="muted" style={{ margin: 0, fontSize: '0.9rem' }}><strong style={{ color: '#8d6e00' }}>Likely cause · </strong>{sy.c}</p>
                 <p className="muted" style={{ margin: '8px 0 0', fontSize: '0.9rem' }}><strong style={{ color: 'var(--green)' }}>Fix · </strong>{sy.f}</p>
               </div>
             </Card>

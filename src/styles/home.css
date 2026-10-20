@@ -5,26 +5,23 @@
 .hero { position: relative; padding: calc(var(--nav-h) + 80px) 0 60px; overflow: hidden; }
 .hero-inner { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; }
 .hero-badge {
-  display: inline-flex; align-items: center; gap: 9px; padding: 7px 16px; border-radius: 999px;
-  border: 1px solid var(--line); background: rgba(255,255,255,0.03); backdrop-filter: blur(8px);
-  font-size: 0.82rem; color: var(--text-1); margin-bottom: 30px;
+  display: inline-flex; align-items: center; gap: 9px; padding: 7px 15px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow-lg);
+  font-size: 0.82rem; color: var(--text-2); margin-bottom: 34px;
 }
-.hero-badge .hb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
-.hero-title { font-size: clamp(2.7rem, 7.5vw, 5.6rem); letter-spacing: -0.035em; line-height: 0.98; max-width: 15ch; }
-.hero-sub { font-size: clamp(1.1rem, 2.3vw, 1.4rem); color: var(--text-1); max-width: 660px; margin: 26px auto 0; line-height: 1.55; }
-.hero-cta { display: flex; gap: 14px; margin-top: 38px; flex-wrap: wrap; justify-content: center; }
-.hero-meta { display: flex; gap: 26px; margin-top: 44px; flex-wrap: wrap; justify-content: center; color: var(--text-2); font-size: 0.86rem; }
+.hero-badge .hb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.hero-title { font-size: clamp(2.7rem, 7.5vw, 5.8rem); font-weight: 300; letter-spacing: -0.04em; line-height: 1.0; max-width: 15ch; }
+.hero-title strong, .hero-title b { font-weight: 500; }
+.hero-sub { font-size: clamp(1.1rem, 2.3vw, 1.4rem); color: var(--text-2); max-width: 660px; margin: 28px auto 0; line-height: 1.55; font-weight: 300; }
+.hero-cta { display: flex; gap: 12px; margin-top: 40px; flex-wrap: wrap; justify-content: center; }
+.hero-meta { display: flex; gap: 26px; margin-top: 46px; flex-wrap: wrap; justify-content: center; color: var(--text-2); font-size: 0.86rem; }
 .hero-meta-item { display: flex; align-items: center; gap: 8px; }
-.hero-meta-item svg { color: var(--blue-bright); }
+.hero-meta-item svg { color: var(--blue); }
 .hero-byline { margin-top: 22px; text-align: center; font-size: 0.86rem; color: var(--text-3); }
 .hero-byline strong { color: var(--text-1); font-weight: 600; }
 
-/* Floating orbs behind hero */
-.hero-orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; z-index: 0; animation: float 14s ease-in-out infinite; }
-.hero-orb.o1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(69,137,255,0.5), transparent 70%); top: -60px; left: -80px; }
-.hero-orb.o2 { width: 380px; height: 380px; background: radial-gradient(circle, rgba(165,110,255,0.42), transparent 70%); top: 40px; right: -60px; animation-delay: -5s; }
-.hero-orb.o3 { width: 320px; height: 320px; background: radial-gradient(circle, rgba(8,189,186,0.32), transparent 70%); bottom: -40px; left: 40%; animation-delay: -9s; }
-@keyframes float { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(24px,-30px) scale(1.06); } 66% { transform: translate(-20px,18px) scale(0.96); } }
+/* Orbs removed for the light, keynote-clean look */
+.hero-orb { display: none; }
 
 /* ---------- Lifecycle ring ---------- */
 .lifecycle { position: relative; }
@@ -69,6 +66,60 @@
 @media (max-width: 720px) { .phase-grid { grid-template-columns: 1fr; } }
 
 /* ---------- Big CTA ---------- */
-.bigcta { text-align: center; padding: 64px 40px; border-radius: var(--radius-lg); border: 1px solid var(--line-soft); background: linear-gradient(180deg, rgba(69,137,255,0.08), rgba(165,110,255,0.04)); position: relative; overflow: hidden; }
+.bigcta { text-align: center; padding: 64px 40px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-1); position: relative; overflow: hidden; }
 .bigcta h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); }
 .bigcta p { color: var(--text-1); max-width: 520px; margin: 16px auto 30px; font-size: 1.08rem; }
+
+/* ============================================================
+   Hero — live agent status + keynote word reveal
+   ============================================================ */
+.agent-status {
+  display: inline-flex; align-items: center; gap: 10px; padding: 9px 18px 9px 10px; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--line); box-shadow: var(--shadow-lg);
+  font-size: 0.95rem; color: var(--text-1); margin-bottom: 40px; min-width: 250px;
+  animation: hwIn 0.8s var(--ease) both;
+}
+.as-icon { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; transition: background 0.3s; }
+.as-done { background: var(--green); color: #fff; animation: asPop 0.45s var(--ease); }
+.as-busy, .as-tool { background: var(--blue-50); }
+.as-spin { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--blue-100); border-top-color: var(--blue); animation: asSpin 0.8s linear infinite; }
+.as-tool { position: relative; }
+.as-tool::before, .as-tool::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: var(--blue); }
+.as-tool::after { inset: 4px; background: transparent; border: 2px solid var(--blue); opacity: 0; animation: asPing 1.1s var(--ease) infinite; }
+.as-text { font-weight: 500; animation: asText 0.45s var(--ease); white-space: nowrap; }
+.as-meta { color: var(--text-3); font-weight: 400; }
+@keyframes asSpin { to { transform: rotate(360deg); } }
+@keyframes asPing { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes asPop { 0% { transform: scale(0.4); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes asText { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+.hero-eyebrow {
+  font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 22px; animation: hwIn 0.8s var(--ease) 0.08s both;
+}
+.hw { display: inline-block; white-space: pre; animation: hwIn 0.9s var(--ease) both; }
+.hw-blue { color: var(--blue); font-weight: 400; }
+@keyframes hwIn { from { opacity: 0; transform: translateY(0.35em); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* ---------- Modern card details ---------- */
+.aud-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 20px; color: #fff; background: var(--blue); box-shadow: var(--shadow-blue); }
+.phase-card-icon { color: var(--blue-deep); background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 14px; transition: background 0.3s, color 0.3s, transform 0.4s var(--ease); }
+.phase-card:hover .phase-card-icon { background: var(--blue); color: #fff; border-color: var(--blue); transform: rotate(-6deg) scale(1.06); }
+.phase-card::after { display: none; }
+.phase-card-num { color: var(--blue-deep); }
+.ring-legend-item { background: var(--bg); border-color: var(--line); box-shadow: var(--shadow-sm); }
+.ring-legend-item:hover { border-color: var(--blue-100); box-shadow: var(--shadow-md); }
+.ring-legend-dot { box-shadow: 0 0 0 3px var(--blue-50); }
+.ring-center-title { font-weight: 400; font-size: 1.6rem; letter-spacing: -0.03em; }
+.ring-center-label { color: var(--blue-deep); }
+.bigcta { background: var(--blue); border-color: var(--blue); color: #fff; border-radius: 28px; box-shadow: 0 30px 60px -30px rgba(15, 98, 254, 0.7); }
+.bigcta h2 { color: #fff; font-weight: 400; letter-spacing: -0.03em; }
+.bigcta p { color: rgba(255, 255, 255, 0.86); }
+.bigcta .btn-primary { background: #fff; border-color: #fff; color: var(--blue-deep); box-shadow: 0 10px 24px -12px rgba(0,0,0,0.35); }
+.bigcta .btn-primary:hover { background: var(--blue-50); border-color: var(--blue-50); color: var(--blue-deep); }
+.bigcta .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.45); box-shadow: none; }
+.bigcta .btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
+@media (prefers-reduced-motion: reduce) { .hw, .agent-status, .hero-eyebrow { animation: none; } }
+.ring-center-inner { max-width: 250px; }
+.ring-center-title { font-size: 1.45rem; white-space: nowrap; }
+.ring-seg { transition: stroke-dashoffset 1.4s var(--ease), opacity 0.4s, stroke 0.3s, stroke-width 0.3s; }

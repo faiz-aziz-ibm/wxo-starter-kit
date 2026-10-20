@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import '../styles/home.css'
 import '../styles/roadmap.css'
@@ -12,42 +13,79 @@ import {
 const audiences = [
   { icon: IconUsers, color: 'var(--cyan)', title: 'Non-technical stakeholders', body: 'Analysts and business owners who need to understand what agents can do, where they fit, and how to scope a use case — no code required.' },
   { icon: IconBuild, color: 'var(--purple)', title: 'New platform builders', body: 'People building their first agent in the UI or ADK. Clear, copy-ready steps and the "why" behind every decision.' },
-  { icon: IconTarget, color: 'var(--amber)', title: 'Experienced developers', body: 'Engineers shipping multi-agent systems, workflows and CI/CD who want best practices, trade-offs and debugging playbooks.' },
+  { icon: IconTarget, color: 'var(--blue)', title: 'Experienced developers', body: 'Engineers shipping multi-agent systems, workflows and CI/CD who want best practices, trade-offs and debugging playbooks.' },
 ]
+
+/* A live agent run, cycling like the status chip in a real chat. */
+const runSteps = [
+  { kind: 'busy', text: 'Planning the request' },
+  { kind: 'tool', text: 'Calling get_leave_balance' },
+  { kind: 'busy', text: 'Checking HR policy' },
+  { kind: 'done', text: 'Resolved', meta: '1m 52s' },
+] as const
+
+function AgentStatus() {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setI(runSteps.length - 1); return }
+    const id = window.setTimeout(() => setI((n) => (n + 1) % runSteps.length), i === runSteps.length - 1 ? 3200 : 1500)
+    return () => window.clearTimeout(id)
+  }, [i])
+  const s = runSteps[i]
+  return (
+    <div className="agent-status" aria-live="polite">
+      <span className={`as-icon as-${s.kind}`} aria-hidden>
+        {s.kind === 'done' ? <IconCheck width={13} height={13} /> : s.kind === 'tool' ? <span className="as-tool" /> : <span className="as-spin" />}
+      </span>
+      <span key={i} className="as-text">
+        {s.text}{'meta' in s && <span className="as-meta"> · {s.meta}</span>}
+      </span>
+    </div>
+  )
+}
+
+function Words({ text, from = 0, className = '' }: { text: string; from?: number; className?: string }) {
+  return (
+    <>
+      {text.split(' ').map((w, k) => (
+        <span key={k} className={`hw ${className}`} style={{ animationDelay: `${(from + k) * 90 + 150}ms` }}>{w}{' '}</span>
+      ))}
+    </>
+  )
+}
 
 export default function Home() {
   return (
     <>
       {/* HERO */}
       <section className="hero">
-        <div className="hero-orb o1" /><div className="hero-orb o2" /><div className="hero-orb o3" />
         <div className="container hero-inner">
-          <Reveal>
-            <div className="hero-badge"><span className="hb-dot" /> IBM watsonx Orchestrate · Knowledge Transfer Series</div>
-          </Reveal>
-          <Reveal delay={80}>
-            <h1 className="hero-title">Build agentic AI, <span className="gradient-text">the right way</span>.</h1>
-          </Reveal>
-          <Reveal delay={160}>
+          <AgentStatus />
+          <div className="hero-eyebrow">IBM watsonx Orchestrate · Starter Kit</div>
+          <h1 className="hero-title">
+            <Words text="Build agentic AI," />
+            <Words text="the right way." from={3} className="hw-blue" />
+          </h1>
+          <Reveal delay={760}>
             <p className="hero-sub">
               A friendly, premium starter kit for everyone at IBM — taking you from zero to production
               across the full watsonx Orchestrate lifecycle: <strong>Design, Build, Test, Deploy, Monitor.</strong>
             </p>
           </Reveal>
-          <Reveal delay={240}>
+          <Reveal delay={880}>
             <div className="hero-cta">
               <Link to="/roadmap" className="btn btn-primary">Follow the roadmap <IconArrow width={16} height={16} /></Link>
               <Link to="/foundations" className="btn btn-ghost">Start from zero <IconSpark width={16} height={16} /></Link>
             </div>
           </Reveal>
-          <Reveal delay={320}>
+          <Reveal delay={1000}>
             <div className="hero-meta">
               <span className="hero-meta-item"><IconCheck width={16} height={16} /> Non-technical to technical</span>
               <span className="hero-meta-item"><IconBook width={16} height={16} /> 9 guided chapters</span>
               <span className="hero-meta-item"><IconSpark width={16} height={16} /> Copy-ready examples</span>
             </div>
           </Reveal>
-          <Reveal delay={400}>
+          <Reveal delay={1100}>
             <p className="hero-byline">
               Curated by <strong>Faiz Aziz</strong> · Data &amp; AI Delivery Consultant, IBM Expert Labs
             </p>
@@ -89,7 +127,7 @@ export default function Home() {
             {audiences.map((a, i) => (
               <Reveal key={i} delay={i * 100}>
                 <Card className="aud-card" hover accent={a.color}>
-                  <div className="aud-icon" style={{ background: `color-mix(in srgb, ${a.color} 14%, transparent)`, color: a.color }}>
+                  <div className="aud-icon" >
                     <a.icon width={24} height={24} />
                   </div>
                   <h3>{a.title}</h3>
@@ -160,7 +198,6 @@ export default function Home() {
         <div className="container narrow">
           <Reveal>
             <div className="bigcta">
-              <div className="hero-orb o2" style={{ opacity: 0.25 }} />
               <h2>Ready to build your first agent?</h2>
               <p>Follow the staged roadmap from your first Python tool to a full multi-agent system — one new concept at a time.</p>
               <div className="hero-cta" style={{ justifyContent: 'center' }}>
